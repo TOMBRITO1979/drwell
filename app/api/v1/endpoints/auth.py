@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.core.database import get_db
-from app.core.security import verify_password, create_access_token, get_password_hash
+from app.core.security import verify_password, create_access_token, get_password_hash, get_current_user
 from app.models.user import User
 from app.schemas.user import UserCreate, Token
 
@@ -106,9 +106,6 @@ async def refresh_token(current_user: User = Depends(get_current_user)):
     """
     Refresh JWT token
     """
-    # Import here to avoid circular dependency
-    from app.core.security import get_current_user
-
     # Create new access token
     access_token = create_access_token(data={"sub": str(current_user.id)})
 

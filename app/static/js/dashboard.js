@@ -320,26 +320,14 @@ async function loadFirms() {
     }
 }
 
-// Modal functions (to be implemented)
-function openClientModal() {
-    alert('Modal de novo cliente será implementado em breve!');
+// View functions for clients
+function viewClient(id) {
+    openClientModal(id);
 }
 
-function openProcessModal() {
-    alert('Modal de novo processo será implementado em breve!');
+function editClient(id) {
+    openClientModal(id);
 }
-
-function openLawyerModal() {
-    alert('Modal de novo advogado será implementado em breve!');
-}
-
-function openFirmModal() {
-    alert('Modal de novo escritório será implementado em breve!');
-}
-
-// View functions
-function viewClient(id) { alert(`Ver cliente ${id}`); }
-function editClient(id) { alert(`Editar cliente ${id}`); }
 async function deleteClient(id) {
     if (confirm('Tem certeza que deseja excluir este cliente?')) {
         try {
@@ -358,8 +346,13 @@ async function deleteClient(id) {
     }
 }
 
-function viewProcess(id) { alert(`Ver processo ${id}`); }
-function editProcess(id) { alert(`Editar processo ${id}`); }
+function viewProcess(id) {
+    openProcessModal(id);
+}
+
+function editProcess(id) {
+    openProcessModal(id);
+}
 async function deleteProcess(id) {
     if (confirm('Tem certeza que deseja excluir este processo?')) {
         try {
@@ -398,8 +391,13 @@ async function syncProcess(id) {
     }
 }
 
-function viewLawyer(id) { alert(`Ver advogado ${id}`); }
-function editLawyer(id) { alert(`Editar advogado ${id}`); }
+function viewLawyer(id) {
+    openLawyerModal(id);
+}
+
+function editLawyer(id) {
+    openLawyerModal(id);
+}
 async function deleteLawyer(id) {
     if (confirm('Tem certeza que deseja excluir este advogado?')) {
         try {
@@ -418,8 +416,13 @@ async function deleteLawyer(id) {
     }
 }
 
-function viewFirm(id) { alert(`Ver escritório ${id}`); }
-function editFirm(id) { alert(`Editar escritório ${id}`); }
+function viewFirm(id) {
+    openFirmModal(id);
+}
+
+function editFirm(id) {
+    openFirmModal(id);
+}
 async function deleteFirm(id) {
     if (confirm('Tem certeza que deseja excluir este escritório?')) {
         try {
