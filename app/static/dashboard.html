@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DrWell CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+    <!-- Sidebar -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Mobile menu button -->
+        <button id="mobile-menu-btn" class="fixed top-4 left-4 z-50 lg:hidden bg-white p-2 rounded-md shadow-lg">
+            <i class="fas fa-bars text-gray-600"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-indigo-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div class="flex flex-col h-full">
+                <!-- Logo -->
+                <div class="flex items-center justify-center h-16 bg-indigo-900">
+                    <i class="fas fa-balance-scale text-2xl text-white mr-2"></i>
+                    <span class="text-white text-xl font-bold">DrWell</span>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                    <a href="#dashboard" onclick="showSection('dashboard')" class="nav-link flex items-center px-4 py-3 text-white hover:bg-indigo-700 rounded-lg transition">
+                        <i class="fas fa-home mr-3"></i>
+                        Dashboard
+                    </a>
+                    <a href="#clients" onclick="showSection('clients')" class="nav-link flex items-center px-4 py-3 text-white hover:bg-indigo-700 rounded-lg transition">
+                        <i class="fas fa-users mr-3"></i>
+                        Clientes
+                    </a>
+                    <a href="#processes" onclick="showSection('processes')" class="nav-link flex items-center px-4 py-3 text-white hover:bg-indigo-700 rounded-lg transition">
+                        <i class="fas fa-gavel mr-3"></i>
+                        Processos
+                    </a>
+                    <a href="#lawyers" onclick="showSection('lawyers')" class="nav-link flex items-center px-4 py-3 text-white hover:bg-indigo-700 rounded-lg transition">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        Advogados
+                    </a>
+                    <a href="#law-firms" onclick="showSection('law-firms')" class="nav-link flex items-center px-4 py-3 text-white hover:bg-indigo-700 rounded-lg transition">
+                        <i class="fas fa-building mr-3"></i>
+                        Escritórios
+                    </a>
+                </nav>
+
+                <!-- User Section -->
+                <div class="px-4 py-4 bg-indigo-900">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-white text-sm font-medium" id="user-name">Carregando...</p>
+                            <button onclick="logout()" class="text-indigo-300 text-xs hover:text-white">Sair</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm">
+                <div class="px-6 py-4">
+                    <h1 class="text-2xl font-bold text-gray-800" id="page-title">Dashboard</h1>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="p-6">
+                <!-- Dashboard Section -->
+                <div id="section-dashboard" class="section-content">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                    <i class="fas fa-users text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-600">Total Clientes</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="stats-clients">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                    <i class="fas fa-gavel text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-600">Processos Ativos</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="stats-processes">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                    <i class="fas fa-user-tie text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-600">Advogados</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="stats-lawyers">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-orange-100 text-orange-600">
+                                    <i class="fas fa-building text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-600">Escritórios</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="stats-firms">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Welcome Card -->
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg p-8 text-white mb-6">
+                        <h2 class="text-3xl font-bold mb-2">Bem-vindo ao DrWell!</h2>
+                        <p class="text-indigo-100 mb-4">Sistema completo de gestão para escritórios de advocacia com integração DataJud CNJ</p>
+                        <div class="flex space-x-4">
+                            <button onclick="showSection('clients')" class="bg-white text-indigo-600 px-6 py-2 rounded-lg font-medium hover:bg-indigo-50 transition">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                Novo Cliente
+                            </button>
+                            <button onclick="showSection('processes')" class="bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-800 transition">
+                                <i class="fas fa-gavel mr-2"></i>
+                                Novo Processo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clients Section -->
+                <div id="section-clients" class="section-content hidden">
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">Clientes</h3>
+                            <button onclick="openClientModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                                <i class="fas fa-plus mr-2"></i>
+                                Novo Cliente
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div id="clients-list" class="space-y-4">
+                                <p class="text-gray-500 text-center py-8">Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processes Section -->
+                <div id="section-processes" class="section-content hidden">
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">Processos Judiciais</h3>
+                            <button onclick="openProcessModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                                <i class="fas fa-plus mr-2"></i>
+                                Novo Processo
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div id="processes-list" class="space-y-4">
+                                <p class="text-gray-500 text-center py-8">Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lawyers Section -->
+                <div id="section-lawyers" class="section-content hidden">
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">Advogados</h3>
+                            <button onclick="openLawyerModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                                <i class="fas fa-plus mr-2"></i>
+                                Novo Advogado
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div id="lawyers-list" class="space-y-4">
+                                <p class="text-gray-500 text-center py-8">Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Law Firms Section -->
+                <div id="section-law-firms" class="section-content hidden">
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">Escritórios de Advocacia</h3>
+                            <button onclick="openFirmModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                                <i class="fas fa-plus mr-2"></i>
+                                Novo Escritório
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div id="firms-list" class="space-y-4">
+                                <p class="text-gray-500 text-center py-8">Carregando...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Client Modal -->
+    <div id="clientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Novo Cliente</h3>
+                <button onclick="closeClientModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="clientForm" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
+                        <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CPF/CNPJ</label>
+                        <input type="text" name="cpf_cnpj" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">RG</label>
+                        <input type="text" name="rg" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                        <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                        <input type="text" name="address" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                        <input type="text" name="city" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <input type="text" name="state" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeClientModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Criar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Process Modal -->
+    <div id="processModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Novo Processo</h3>
+                <button onclick="closeProcessModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="processForm" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número do Processo *</label>
+                        <input type="text" name="process_number" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Assunto *</label>
+                        <input type="text" name="subject" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
+                        <select name="client_id" id="processClientSelect" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Selecione um cliente</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tribunal</label>
+                        <select name="court_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Selecione</option>
+                            <option value="tj">TJ - Tribunal de Justiça</option>
+                            <option value="trt">TRT - Tribunal Regional do Trabalho</option>
+                            <option value="trf">TRF - Tribunal Regional Federal</option>
+                            <option value="tst">TST - Tribunal Superior do Trabalho</option>
+                            <option value="stj">STJ - Superior Tribunal de Justiça</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="active">Ativo</option>
+                            <option value="suspended">Suspenso</option>
+                            <option value="archived">Arquivado</option>
+                            <option value="finished">Finalizado</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                        <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeProcessModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Criar Processo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lawyer Modal -->
+    <div id="lawyerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Novo Advogado</h3>
+                <button onclick="closeLawyerModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="lawyerForm" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
+                        <input type="text" name="full_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">OAB *</label>
+                        <input type="text" name="oab_number" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado OAB</label>
+                        <input type="text" name="oab_state" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                        <input type="text" name="cpf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                        <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeLawyerModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Criar Advogado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Law Firm Modal -->
+    <div id="firmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Novo Escritório</h3>
+                <button onclick="closeFirmModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="firmForm" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Escritório *</label>
+                        <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+                        <input type="text" name="cnpj" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">OAB</label>
+                        <input type="text" name="oab_number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                        <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                        <input type="text" name="address" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                        <input type="text" name="city" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <input type="text" name="state" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="closeFirmModal()" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Criar Escritório</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

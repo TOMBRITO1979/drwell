@@ -24,22 +24,24 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python packages from builder
-COPY --from=builder /root/.local /root/.local
+# Create non-root user first
+RUN useradd -m -u 1000 drwell
+
+# Copy Python packages from builder to a location accessible by drwell user
+COPY --from=builder /root/.local /home/drwell/.local
 
 # Make sure scripts in .local are usable
-ENV PATH=/root/.local/bin:$PATH
+ENV PATH=/home/drwell/.local/bin:$PATH
 
 # Copy application code
 COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini .
 
-# Create uploads directory
-RUN mkdir -p /app/uploads
+# Create uploads directory and set permissions
+RUN mkdir -p /app/uploads && chown -R drwell:drwell /app /home/drwell/.local
 
-# Non-root user for security
-RUN useradd -m -u 1000 drwell && chown -R drwell:drwell /app
+# Switch to non-root user
 USER drwell
 
 # Health check

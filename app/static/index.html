@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrWell - CRM para Advogados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-balance-scale text-3xl text-indigo-600 mr-3"></i>
+                    <span class="text-2xl font-bold text-gray-800">DrWell</span>
+                    <span class="text-sm text-gray-500 ml-2">CRM para Advogados</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex items-center justify-center min-h-[calc(100vh-4rem)] py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+
+            <!-- Login/Register Toggle -->
+            <div class="text-center">
+                <h2 class="text-3xl font-extrabold text-gray-900" id="form-title">
+                    Entrar no Sistema
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Ou
+                    <button onclick="toggleForm()" class="font-medium text-indigo-600 hover:text-indigo-500" id="toggle-btn">
+                        crie uma nova conta
+                    </button>
+                </p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="mt-8 bg-white py-8 px-6 shadow-xl rounded-lg" id="login-form">
+                <form class="space-y-6" onsubmit="handleLogin(event)">
+                    <div>
+                        <label for="login-username" class="block text-sm font-medium text-gray-700">
+                            Usuário ou Email
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input id="login-username" name="username" type="text" required
+                                class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="seu.usuario">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700">
+                            Senha
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="login-password" name="password" type="password" required
+                                class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div id="login-error" class="hidden">
+                        <div class="bg-red-50 border-l-4 border-red-400 p-4">
+                            <div class="flex">
+                                <i class="fas fa-exclamation-circle text-red-400 mr-3"></i>
+                                <p class="text-sm text-red-700" id="login-error-message"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div class="mt-8 bg-white py-8 px-6 shadow-xl rounded-lg hidden" id="register-form">
+                <form class="space-y-6" onsubmit="handleRegister(event)">
+                    <div>
+                        <label for="register-fullname" class="block text-sm font-medium text-gray-700">
+                            Nome Completo
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input id="register-fullname" name="full_name" type="text" required
+                                class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="João Silva">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="register-username" class="block text-sm font-medium text-gray-700">
+                            Nome de Usuário
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-at text-gray-400"></i>
+                            </div>
+                            <input id="register-username" name="username" type="text" required
+                                class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="joao.silva">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="register-email" class="block text-sm font-medium text-gray-700">
+                            Email
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                            </div>
+                            <input id="register-email" name="email" type="email" required
+                                class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="joao@escritorio.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="register-password" class="block text-sm font-medium text-gray-700">
+                            Senha
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="register-password" name="password" type="password" required
+                                class="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="••••••••">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Mínimo 6 caracteres</p>
+                    </div>
+
+                    <div>
+                        <label for="register-role" class="block text-sm font-medium text-gray-700">
+                            Tipo de Conta
+                        </label>
+                        <select id="register-role" name="role"
+                            class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="master">Master (Proprietário)</option>
+                            <option value="lawyer">Advogado</option>
+                            <option value="assistant">Assistente</option>
+                        </select>
+                    </div>
+
+                    <div id="register-error" class="hidden">
+                        <div class="bg-red-50 border-l-4 border-red-400 p-4">
+                            <div class="flex">
+                                <i class="fas fa-exclamation-circle text-red-400 mr-3"></i>
+                                <p class="text-sm text-red-700" id="register-error-message"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Criar Conta
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Features -->
+            <div class="mt-8">
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <i class="fas fa-users text-2xl text-indigo-600 mb-2"></i>
+                        <p class="text-xs text-gray-600">Gestão de Clientes</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <i class="fas fa-gavel text-2xl text-indigo-600 mb-2"></i>
+                        <p class="text-xs text-gray-600">Processos Judiciais</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <i class="fas fa-sync text-2xl text-indigo-600 mb-2"></i>
+                        <p class="text-xs text-gray-600">Sync DataJud CNJ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+</body>
+</html>
