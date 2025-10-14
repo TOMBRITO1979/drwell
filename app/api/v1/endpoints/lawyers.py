@@ -43,9 +43,6 @@ async def create_lawyer(
     """
     Cadastrar advogado funcionário
     """
-    if not current_user.law_firm_id:
-        raise HTTPException(status_code=400, detail="Usuário não está associado a um escritório")
-
     # Check if CPF already exists
     if lawyer_data.cpf:
         existing = db.query(Lawyer).filter(Lawyer.cpf == lawyer_data.cpf).first()
@@ -62,7 +59,7 @@ async def create_lawyer(
         address=lawyer_data.address,
         is_partner=lawyer_data.is_partner,
         is_active=lawyer_data.is_active,
-        law_firm_id=current_user.law_firm_id
+        law_firm_id=current_user.law_firm_id if current_user.law_firm_id else current_user.id
     )
 
     db.add(lawyer)
@@ -85,10 +82,8 @@ async def list_lawyers(
     """
     Listar advogados
     """
-    if not current_user.law_firm_id:
-        return []
-
-    lawyers = db.query(Lawyer).filter(Lawyer.law_firm_id == current_user.law_firm_id).all()
+    filter_id = current_user.law_firm_id if current_user.law_firm_id else current_user.id
+    lawyers = db.query(Lawyer).filter(Lawyer.law_firm_id == filter_id).all()
 
     return [{
         "id": l.id,
@@ -113,9 +108,10 @@ async def get_lawyer(
     """
     Obter detalhes do advogado
     """
+    filter_id = current_user.law_firm_id if current_user.law_firm_id else current_user.id
     lawyer = db.query(Lawyer).filter(
         Lawyer.id == lawyer_id,
-        Lawyer.law_firm_id == current_user.law_firm_id
+        Lawyer.law_firm_id == filter_id
     ).first()
 
     if not lawyer:
@@ -145,9 +141,10 @@ async def update_lawyer(
     """
     Atualizar advogado
     """
+    filter_id = current_user.law_firm_id if current_user.law_firm_id else current_user.id
     lawyer = db.query(Lawyer).filter(
         Lawyer.id == lawyer_id,
-        Lawyer.law_firm_id == current_user.law_firm_id
+        Lawyer.law_firm_id == filter_id
     ).first()
 
     if not lawyer:
@@ -188,9 +185,10 @@ async def delete_lawyer(
     """
     Deletar advogado
     """
+    filter_id = current_user.law_firm_id if current_user.law_firm_id else current_user.id
     lawyer = db.query(Lawyer).filter(
         Lawyer.id == lawyer_id,
-        Lawyer.law_firm_id == current_user.law_firm_id
+        Lawyer.law_firm_id == filter_id
     ).first()
 
     if not lawyer:

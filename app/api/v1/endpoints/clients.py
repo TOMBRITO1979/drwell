@@ -50,9 +50,6 @@ async def create_client(
     """
     Cadastrar novo cliente
     """
-    if not current_user.law_firm_id:
-        raise HTTPException(status_code=400, detail="Usuário não está associado a um escritório")
-
     # Check if CPF/CNPJ already exists
     if client_data.cpf_cnpj:
         existing = db.query(Client).filter(Client.cpf_cnpj == client_data.cpf_cnpj).first()
@@ -73,7 +70,7 @@ async def create_client(
         zip_code=client_data.zip_code,
         occupation=client_data.occupation,
         notes=client_data.notes,
-        law_firm_id=current_user.law_firm_id
+        law_firm_id=current_user.law_firm_id if current_user.law_firm_id else current_user.id
     )
 
     db.add(client)
@@ -98,10 +95,9 @@ async def list_clients(
     """
     Listar clientes
     """
-    if not current_user.law_firm_id:
-        return []
-
-    clients = db.query(Client).filter(Client.law_firm_id == current_user.law_firm_id).all()
+    # Use law_firm_id if exists, otherwise use user_id as fallback
+    filter_id = current_user.law_firm_id if current_user.law_firm_id else current_user.id
+    clients = db.query(Client).filter(Client.law_firm_id == filter_id).all()
 
     return [{
         "id": c.id,

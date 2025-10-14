@@ -49,9 +49,6 @@ async def create_process(
     """
     Cadastrar novo processo judicial
     """
-    if not current_user.law_firm_id:
-        raise HTTPException(status_code=400, detail="Usuário não está associado a um escritório")
-
     # Check if process number already exists
     existing = db.query(Process).filter(Process.process_number == process_data.process_number).first()
     if existing:
@@ -70,7 +67,7 @@ async def create_process(
         status=ProcessStatus(process_data.status),
         filing_date=process_data.filing_date,
         deadline=process_data.deadline,
-        law_firm_id=current_user.law_firm_id,
+        law_firm_id=current_user.law_firm_id if current_user.law_firm_id else current_user.id,
         client_id=process_data.client_id,
         responsible_lawyer_id=process_data.responsible_lawyer_id
     )
@@ -95,10 +92,8 @@ async def list_processes(
     """
     Listar processos
     """
-    if not current_user.law_firm_id:
-        return []
-
-    processes = db.query(Process).filter(Process.law_firm_id == current_user.law_firm_id).all()
+    filter_id = current_user.law_firm_id if current_user.law_firm_id else current_user.id
+    processes = db.query(Process).filter(Process.law_firm_id == filter_id).all()
 
     return [{
         "id": p.id,
