@@ -1,0 +1,219 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: drwell
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB: drwell_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - drwell_internal
+    secrets:
+      - postgres_password
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U drwell"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Application
+  api:
+    image: tomautomations/drwell:latest
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://drwell:POSTGRES_PASSWORD_PLACEHOLDER@postgres:5432/drwell_db
+      - REDIS_URL=redis://redis_redis:6379/0
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - DATAJUD_API_KEY=cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==
+    volumes:
+      - uploads:/app/uploads
+    networks:
+      - network-public
+      - drwell_internal
+    secrets:
+      - secret_key
+      - postgres_password
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network-public"
+
+        # HTTP Router
+        - "traefik.http.routers.drwell-api.rule=Host(`drwell.tombrito.com.br`) || Host(`api.drwell.tombrito.com.br`)"
+        - "traefik.http.routers.drwell-api.entrypoints=websecure"
+        - "traefik.http.routers.drwell-api.tls=true"
+        - "traefik.http.routers.drwell-api.tls.certresolver=letsencrypt"
+
+        # Service
+        - "traefik.http.services.drwell-api.loadbalancer.server.port=8000"
+        - "traefik.http.services.drwell-api.loadbalancer.healthcheck.path=/health"
+        - "traefik.http.services.drwell-api.loadbalancer.healthcheck.interval=10s"
+
+        # Middleware (opcional - adicione se precisar)
+        # - "traefik.http.routers.drwell-api.middlewares=drwell-compress,drwell-ratelimit"
+        # - "traefik.http.middlewares.drwell-compress.compress=true"
+        # - "traefik.http.middlewares.drwell-ratelimit.ratelimit.average=100"
+        # - "traefik.http.middlewares.drwell-ratelimit.ratelimit.burst=50"
+    depends_on:
+      - postgres
+
+  # Celery Worker - Background Jobs
+  celery_worker:
+    image: tomautomations/drwell:latest
+    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=4
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://drwell:POSTGRES_PASSWORD_PLACEHOLDER@postgres:5432/drwell_db
+      - REDIS_URL=redis://redis_redis:6379/0
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - DATAJUD_API_KEY=cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==
+    networks:
+      - network-public
+      - drwell_internal
+    secrets:
+      - secret_key
+      - postgres_password
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    depends_on:
+      - postgres
+      - api
+
+  # Celery Beat - Scheduler
+  celery_beat:
+    image: tomautomations/drwell:latest
+    command: celery -A app.workers.celery_app beat --loglevel=info
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://drwell:POSTGRES_PASSWORD_PLACEHOLDER@postgres:5432/drwell_db
+      - REDIS_URL=redis://redis_redis:6379/0
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - DATAJUD_API_KEY=cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==
+    networks:
+      - network-public
+      - drwell_internal
+    secrets:
+      - secret_key
+      - postgres_password
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    depends_on:
+      - postgres
+      - celery_worker
+
+  # Flower - Celery Monitoring (Opcional)
+  flower:
+    image: tomautomations/drwell:latest
+    command: celery -A app.workers.celery_app flower --port=5555
+    environment:
+      - REDIS_URL=redis://redis_redis:6379/0
+    networks:
+      - network-public
+      - drwell_internal
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network-public"
+
+        # HTTP Router
+        - "traefik.http.routers.drwell-flower.rule=Host(`flower.drwell.tombrito.com.br`)"
+        - "traefik.http.routers.drwell-flower.entrypoints=websecure"
+        - "traefik.http.routers.drwell-flower.tls=true"
+        - "traefik.http.routers.drwell-flower.tls.certresolver=letsencrypt"
+
+        # Service
+        - "traefik.http.services.drwell-flower.loadbalancer.server.port=5555"
+
+        # Basic Auth (Recomendado para proteger o Flower)
+        # Gere a senha com: echo $(htpasswd -nb admin your-password) | sed -e s/\\$/\\$\\$/g
+        # - "traefik.http.routers.drwell-flower.middlewares=flower-auth"
+        # - "traefik.http.middlewares.flower-auth.basicauth.users=admin:$$apr1$$hash$$here"
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    depends_on:
+      - celery_worker
+
+networks:
+  network-public:
+    external: true
+  drwell_internal:
+    driver: overlay
+    attachable: true
+
+volumes:
+  postgres_data:
+    driver: local
+  uploads:
+    driver: local
+
+secrets:
+  postgres_password:
+    external: true
+  secret_key:
+    external: true

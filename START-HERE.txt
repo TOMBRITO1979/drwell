@@ -1,0 +1,201 @@
+================================================================================
+                    DrWell - CRM para Advogados
+           Sistema de Gestão com Integração DataJud (CNJ)
+================================================================================
+
+🎉 PROJETO 100% PRONTO PARA DEPLOY EM DOCKER SWARM + PORTAINER!
+
+================================================================================
+📖 DOCUMENTAÇÃO DISPONÍVEL
+================================================================================
+
+Leia nesta ordem:
+
+1. README-DEPLOY.md         ⭐ COMECE AQUI! Guia completo de deploy
+2. PORTAINER-QUICKSTART.md  🚀 Deploy em 5 minutos
+3. DEPLOYMENT-CHECKLIST.md  ✅ Checklist passo a passo
+4. SECRETS-SETUP.md          🔐 Configuração de senhas
+5. API-EXAMPLES.md           📝 Exemplos de uso da API
+6. DEPLOY.md                 📚 Documentação técnica completa
+
+================================================================================
+🚀 DEPLOY RÁPIDO (3 COMANDOS)
+================================================================================
+
+PASSO 1: Build e Push da Imagem
+--------------------------------
+Windows: build-and-push.bat
+Linux:   ./build-and-push.sh
+
+PASSO 2: Criar Secrets no Portainer
+------------------------------------
+- postgres_password (gere uma senha forte)
+- secret_key (gere uma chave aleatória)
+
+PASSO 3: Deploy no Portainer
+-----------------------------
+1. Ajuste docker-stack.yml (senha e domínios)
+2. Portainer → Stacks → Add stack → Cole docker-stack.yml
+3. Deploy!
+
+PASSO 4: Migrations
+-------------------
+Portainer → Services → drwell_api → Console:
+  alembic revision --autogenerate -m "Initial"
+  alembic upgrade head
+
+PASSO 5: Criar Admin
+--------------------
+  python init-admin.py
+
+PRONTO! Acesse: https://seu-dominio.com/docs
+
+================================================================================
+📁 ESTRUTURA DO PROJETO
+================================================================================
+
+drwell/
+├── app/                       # Código da aplicação
+│   ├── api/v1/endpoints/     # Rotas da API (7 endpoints)
+│   ├── core/                 # Config, DB, Security
+│   ├── models/               # 7 modelos do banco
+│   ├── services/             # DataJud integration
+│   └── workers/              # Celery tasks
+├── docker-stack.yml          # ⭐ Stack para Portainer/Swarm
+├── docker-compose.yml        # Dev local apenas
+├── Dockerfile.production     # Build otimizado
+├── build-and-push.sh/.bat    # Scripts de build
+├── init-admin.py             # Criar usuário admin
+└── *.md                      # Documentação completa
+
+================================================================================
+🔧 STACK DOCKER SWARM
+================================================================================
+
+Serviços incluídos:
+✅ PostgreSQL 15        - Banco de dados
+✅ FastAPI (2 réplicas) - API REST
+✅ Celery Worker (2x)   - Jobs assíncronos
+✅ Celery Beat          - Scheduler
+✅ Flower               - Monitor (opcional)
+
+Usa seu Redis existente: redis_redis (sem senha)
+Usa sua rede: network-public
+Traefik: SSL automático
+
+================================================================================
+🌐 INTEGRAÇÃO DATAJUD (CNJ)
+================================================================================
+
+✅ 70+ tribunais brasileiros suportados
+✅ Sincronização automática de processos
+✅ Histórico completo de movimentações
+✅ API Key já configurada
+✅ Jobs Celery configurados (sync a cada hora)
+
+Tribunais: TJ, TRT, TRF, TST, TSE, STJ (todos os estados)
+
+================================================================================
+🔐 SEGURANÇA
+================================================================================
+
+✅ Docker Secrets
+✅ SSL/TLS (Traefik + Let's Encrypt)
+✅ JWT Authentication
+✅ Bcrypt password hashing
+✅ Non-root container user
+✅ Healthchecks
+
+================================================================================
+📊 RECURSOS NECESSÁRIOS
+================================================================================
+
+Mínimo:
+- 2 CPU cores
+- 4 GB RAM
+- 20 GB disco
+
+Recomendado:
+- 4 CPU cores
+- 8 GB RAM
+- 50 GB disco SSD
+
+================================================================================
+🎯 ENDPOINTS DA API
+================================================================================
+
+Principais rotas:
+- /api/v1/auth/*         - Autenticação
+- /api/v1/law-firms/*    - Escritórios
+- /api/v1/lawyers/*      - Advogados
+- /api/v1/clients/*      - Clientes
+- /api/v1/processes/*    - Processos
+- /api/v1/financial/*    - Financeiro
+
+Documentação interativa:
+- /docs                  - Swagger UI
+- /redoc                 - ReDoc
+
+================================================================================
+🤖 CI/CD AUTOMÁTICO (GitHub Actions)
+================================================================================
+
+Configurar:
+1. GitHub → Settings → Secrets → Actions
+2. Adicionar:
+   - DOCKER_USERNAME = tomautomations
+   - DOCKER_TOKEN = [token fornecido]
+3. Push para main/master
+4. GitHub faz build e push automaticamente!
+
+Veja: .github/workflows/docker-build.yml
+
+================================================================================
+📞 SUPORTE
+================================================================================
+
+GitHub: https://github.com/TOMBRITO1979/drwell
+Issues: https://github.com/TOMBRITO1979/drwell/issues
+
+Para problemas:
+1. Veja DEPLOYMENT-CHECKLIST.md
+2. Veja DEPLOY.md seção "Troubleshooting"
+3. Verifique logs: docker service logs -f drwell_api
+
+================================================================================
+✅ CHECKLIST RÁPIDO
+================================================================================
+
+Antes de começar:
+[ ] Docker Swarm inicializado
+[ ] Portainer instalado
+[ ] Rede network-public criada
+[ ] Redis rodando (redis_redis)
+[ ] Traefik configurado
+[ ] Domínios apontando para servidor
+
+Para deploy:
+[ ] Build da imagem (build-and-push.sh/bat)
+[ ] Secrets criados no Portainer
+[ ] docker-stack.yml ajustado (senha + domínios)
+[ ] Deploy no Portainer
+[ ] Migrations executadas
+[ ] Usuário admin criado
+[ ] API testada (curl /health)
+[ ] Documentação acessível (/docs)
+
+================================================================================
+🎉 PRONTO PARA PRODUÇÃO!
+================================================================================
+
+Tudo foi configurado para você!
+
+Próximos passos:
+1. Leia README-DEPLOY.md
+2. Execute build-and-push
+3. Deploy no Portainer
+4. Comece a usar!
+
+Boa sorte! 🚀
+
+================================================================================
