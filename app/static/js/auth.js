@@ -94,22 +94,10 @@ async function handleRegister(event) {
         const data = await response.json();
 
         if (response.ok) {
-            // Auto login after registration
-            const loginResponse = await fetch(`${API_URL}/api/v1/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
-            });
-
-            const loginData = await loginResponse.json();
-
-            if (loginResponse.ok) {
-                localStorage.setItem('access_token', loginData.access_token);
-                localStorage.setItem('token_type', loginData.token_type);
-                window.location.href = '/dashboard.html';
-            }
+            // Registration already returns a token, use it directly
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('token_type', data.token_type);
+            window.location.href = '/dashboard.html';
         } else {
             errorMsg.textContent = data.detail || 'Erro ao criar conta. Tente novamente.';
             errorDiv.classList.remove('hidden');

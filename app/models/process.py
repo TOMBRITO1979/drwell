@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Date, Enum as SQLEnum, JSON
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Date, Enum as SQLEnum, JSON, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -50,7 +50,7 @@ class Process(Base):
     # API Integration
     datajud_endpoint = Column(String)  # Which tribunal endpoint to use
     raw_data = Column(JSON)  # Store raw API response
-    auto_sync_enabled = Column(String, default=True)
+    auto_sync_enabled = Column(Boolean, default=True)
     sync_interval_hours = Column(Integer, default=24)
 
     # Foreign Keys

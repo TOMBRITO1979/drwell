@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const clientId = this.dataset.clientId;
             const data = {
-                full_name: this.elements['name'].value,
+                name: this.elements['name'].value,
                 email: this.elements['email'].value,
                 phone: this.elements['phone'].value,
                 cpf_cnpj: this.elements['cpf_cnpj'].value,
@@ -80,10 +80,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     delete this.dataset.clientId;
                 } else {
                     const error = await response.json();
-                    alert('Erro: ' + (error.detail || 'Não foi possível salvar o cliente'));
+                    console.error('Erro ao salvar cliente:', error);
+                    alert('Erro: ' + (error.detail || JSON.stringify(error.detail || error) || 'Não foi possível salvar o cliente'));
                 }
             } catch (error) {
-                alert('Erro de conexão ao salvar cliente');
+                console.error('Erro de conexão ao salvar cliente:', error);
+                alert('Erro de conexão ao salvar cliente: ' + error.message);
             }
         });
     }

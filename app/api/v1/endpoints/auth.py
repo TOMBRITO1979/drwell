@@ -5,6 +5,7 @@ from datetime import datetime
 from app.core.database import get_db
 from app.core.security import verify_password, create_access_token, get_password_hash, get_current_user
 from app.models.user import User
+from app.models.law_firm import LawFirm
 from app.schemas.user import UserCreate, Token
 
 router = APIRouter()
@@ -77,7 +78,18 @@ async def register(
             detail="Email already registered"
         )
 
-    # Create new user
+    # Create a default law firm for the new user
+    default_firm_name = f"Escritório de {user_data.full_name or user_data.username}"
+    new_law_firm = LawFirm(
+        name=default_firm_name,
+        email=user_data.email
+    )
+
+    db.add(new_law_firm)
+    db.commit()
+    db.refresh(new_law_firm)
+
+    # Create new user with law_firm association
     new_user = User(
         email=user_data.email,
         username=user_data.username,
@@ -85,7 +97,8 @@ async def register(
         hashed_password=get_password_hash(user_data.password),
         role=user_data.role,
         is_active=True,
-        is_superuser=(user_data.role == "master")
+        is_superuser=(user_data.role == "master"),
+        law_firm_id=new_law_firm.id
     )
 
     db.add(new_user)
