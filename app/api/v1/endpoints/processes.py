@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.process import Process, ProcessStatus, CourtType
+from app.models.process_movement import ProcessMovement
+from app.services.datajud_service import DataJudService
 
 router = APIRouter()
 
@@ -139,14 +141,14 @@ async def get_process(
     }
 
 
-@router.get("/{process_id}/history")
-async def get_process_history(
+@router.get("/{process_id}/movements")
+async def get_process_movements(
     process_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
-    Obter histórico de movimentações do processo
+    Obter movimentações do processo (salvas no banco)
     """
     process = db.query(Process).filter(
         Process.id == process_id,
@@ -156,7 +158,25 @@ async def get_process_history(
     if not process:
         raise HTTPException(status_code=404, detail="Processo não encontrado")
 
-    return {"process_id": process_id, "history": []}
+    # Get movements from database
+    movements = db.query(ProcessMovement).filter(
+        ProcessMovement.process_id == process_id
+    ).order_by(ProcessMovement.movement_date.desc()).all()
+
+    return {
+        "process_id": process_id,
+        "process_number": process.process_number,
+        "total_movements": len(movements),
+        "last_sync": process.last_sync_date.isoformat() if process.last_sync_date else None,
+        "movements": [{
+            "id": m.id,
+            "movement_code": m.movement_code,
+            "movement_name": m.movement_name,
+            "movement_date": m.movement_date.isoformat() if m.movement_date else None,
+            "description": m.description,
+            "created_at": m.created_at.isoformat() if m.created_at else None
+        } for m in movements]
+    }
 
 
 @router.post("/{process_id}/sync")
@@ -177,8 +197,56 @@ async def sync_process(
     if not process:
         raise HTTPException(status_code=404, detail="Processo não encontrado")
 
-    # TODO: Add background task to sync process
-    return {"message": "Sincronização iniciada", "process_id": process_id, "movements_found": 0}
+    try:
+        # Initialize DataJud service
+        datajud_service = DataJudService()
+
+        # Get movements from DataJud API
+        movements = await datajud_service.get_process_movements(
+            process_number=process.process_number,
+            court_type=process.court_type.value if process.court_type else "tj",
+            state=process.court_state or "SP"
+        )
+
+        # Save new movements to database
+        new_movements_count = 0
+        for mov_data in movements:
+            # Check if movement already exists
+            existing = db.query(ProcessMovement).filter(
+                ProcessMovement.process_id == process_id,
+                ProcessMovement.movement_date == mov_data["movement_date"],
+                ProcessMovement.movement_name == mov_data["movement_name"]
+            ).first()
+
+            if not existing:
+                new_movement = ProcessMovement(
+                    process_id=process_id,
+                    movement_code=mov_data.get("movement_code"),
+                    movement_name=mov_data["movement_name"],
+                    movement_date=mov_data["movement_date"],
+                    description=mov_data.get("description", ""),
+                    raw_data=mov_data.get("raw_data")
+                )
+                db.add(new_movement)
+                new_movements_count += 1
+
+        # Update last sync date
+        process.last_sync_date = datetime.utcnow()
+        db.commit()
+
+        return {
+            "message": "Sincronização concluída",
+            "process_id": process_id,
+            "movements_found": len(movements),
+            "new_movements": new_movements_count
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao sincronizar processo: {str(e)}"
+        )
 
 
 @router.put("/{process_id}")

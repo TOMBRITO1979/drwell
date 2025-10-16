@@ -30,6 +30,9 @@ def sync_process(self, process_id: int):
     """
     Sync a single process with DataJud API
     """
+    import asyncio
+    from datetime import datetime
+
     try:
         logger.info(f"Starting sync for process ID: {process_id}")
 
@@ -46,53 +49,56 @@ def sync_process(self, process_id: int):
         # Initialize DataJud service
         datajud_service = DataJudService()
 
-        # Fetch process data from API
-        result = datajud_service.fetch_process(
-            process_number=process.process_number,
-            tribunal_endpoint=process.datajud_endpoint
-        )
+        # Get movements using async method
+        async def get_movements():
+            return await datajud_service.get_process_movements(
+                process_number=process.process_number,
+                court_type=process.court_type.value if process.court_type else "tj",
+                state=process.court_state or "SP"
+            )
 
-        if not result:
-            logger.error(f"Failed to fetch process {process.process_number}")
-            return {"error": "Failed to fetch from API"}
+        # Run async function
+        movements = asyncio.run(get_movements())
 
-        # Update process data
-        process.raw_data = result
-        process.last_sync_date = func.now()
+        if not movements:
+            logger.warning(f"No movements found for process {process.process_number}")
+            process.last_sync_date = datetime.utcnow()
+            self.db.commit()
+            return {"message": "No movements found", "process_id": process_id}
 
-        # Process movements
-        movements = result.get("hits", {}).get("hits", [])
-        if movements:
-            process_data = movements[0].get("_source", {})
+        # Save new movements to database
+        new_movements_count = 0
+        for mov_data in movements:
+            # Check if movement already exists
+            existing = self.db.query(ProcessMovement).filter(
+                ProcessMovement.process_id == process_id,
+                ProcessMovement.movement_date == mov_data["movement_date"],
+                ProcessMovement.movement_name == mov_data["movement_name"]
+            ).first()
 
-            # Update basic info
-            if "classe" in process_data:
-                process.process_class = process_data["classe"].get("nome")
+            if not existing:
+                new_movement = ProcessMovement(
+                    process_id=process_id,
+                    movement_code=mov_data.get("movement_code"),
+                    movement_name=mov_data["movement_name"],
+                    movement_date=mov_data["movement_date"],
+                    description=mov_data.get("description", ""),
+                    raw_data=mov_data.get("raw_data")
+                )
+                self.db.add(new_movement)
+                new_movements_count += 1
 
-            # Add new movements
-            api_movements = process_data.get("movimentos", [])
-            for mov in api_movements:
-                # Check if movement already exists
-                existing = self.db.query(ProcessMovement).filter(
-                    ProcessMovement.process_id == process.id,
-                    ProcessMovement.movement_code == mov.get("codigo"),
-                    ProcessMovement.movement_date == mov.get("dataHora")
-                ).first()
-
-                if not existing:
-                    new_movement = ProcessMovement(
-                        process_id=process.id,
-                        movement_code=mov.get("codigo"),
-                        movement_name=mov.get("nome"),
-                        movement_date=mov.get("dataHora"),
-                        raw_data=mov
-                    )
-                    self.db.add(new_movement)
-
+        # Update last sync date
+        process.last_sync_date = datetime.utcnow()
         self.db.commit()
 
-        logger.info(f"Process {process_id} synced successfully")
-        return {"success": True, "process_id": process_id}
+        logger.info(f"Process {process_id} synced successfully - {new_movements_count} new movements")
+        return {
+            "success": True,
+            "process_id": process_id,
+            "movements_found": len(movements),
+            "new_movements": new_movements_count
+        }
 
     except Exception as e:
         logger.error(f"Error syncing process {process_id}: {str(e)}")

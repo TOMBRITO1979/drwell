@@ -346,12 +346,146 @@ async function deleteClient(id) {
     }
 }
 
+let currentProcessId = null;
+
 function viewProcess(id) {
-    openProcessModal(id);
+    openProcessDetailsModal(id);
 }
 
 function editProcess(id) {
     openProcessModal(id);
+}
+
+// Process Details Modal Functions
+async function openProcessDetailsModal(processId) {
+    currentProcessId = processId;
+
+    try {
+        // Fetch process details
+        const response = await fetch(`${API_URL}/api/v1/processes/${processId}`, {
+            headers: getAuthHeaders()
+        });
+
+        if (response.ok) {
+            const process = await response.json();
+
+            // Update modal content
+            document.getElementById('processDetailsNumber').textContent = process.process_number || '';
+            document.getElementById('processDetailsSubject').textContent = process.subject || 'Sem assunto';
+            document.getElementById('processDetailsCourt').textContent = process.court_name || (process.court_type ? process.court_type.toUpperCase() : 'N/A');
+
+            // Update status badge
+            const statusBadge = document.getElementById('processDetailsStatus');
+            statusBadge.textContent = process.status || 'N/A';
+            const statusClasses = {
+                'active': 'bg-green-100 text-green-800',
+                'suspended': 'bg-yellow-100 text-yellow-800',
+                'archived': 'bg-gray-100 text-gray-800',
+                'finished': 'bg-blue-100 text-blue-800'
+            };
+            statusBadge.className = `inline-block px-2 py-1 text-xs font-semibold rounded ${statusClasses[process.status] || 'bg-gray-100 text-gray-800'}`;
+
+            // Show modal
+            document.getElementById('processDetailsModal').classList.remove('hidden');
+
+            // Load movements
+            loadProcessMovements(processId);
+        } else {
+            alert('Erro ao carregar detalhes do processo');
+        }
+    } catch (error) {
+        console.error('Error loading process details:', error);
+        alert('Erro de conexão ao carregar processo');
+    }
+}
+
+function closeProcessDetailsModal() {
+    document.getElementById('processDetailsModal').classList.add('hidden');
+    currentProcessId = null;
+}
+
+async function loadProcessMovements(processId) {
+    const container = document.getElementById('processMovementsList');
+    container.innerHTML = '<p class="text-gray-500 text-center py-8">Carregando...</p>';
+
+    try {
+        const response = await fetch(`${API_URL}/api/v1/processes/${processId}/movements`, {
+            headers: getAuthHeaders()
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+
+            // Update last sync info
+            if (data.last_sync) {
+                const syncDate = new Date(data.last_sync);
+                document.getElementById('processDetailsLastSync').textContent = syncDate.toLocaleString('pt-BR');
+            } else {
+                document.getElementById('processDetailsLastSync').textContent = 'Nunca';
+            }
+
+            if (data.movements && data.movements.length > 0) {
+                container.innerHTML = data.movements.map(movement => {
+                    const movDate = movement.movement_date ? new Date(movement.movement_date).toLocaleString('pt-BR') : 'Data não disponível';
+                    return `
+                        <div class="border-l-4 border-indigo-500 bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <h5 class="font-semibold text-gray-800">${movement.movement_name || 'Movimentação'}</h5>
+                                <span class="text-xs text-gray-500">${movDate}</span>
+                            </div>
+                            ${movement.movement_code ? `<p class="text-xs text-gray-500 mb-1">Código: ${movement.movement_code}</p>` : ''}
+                            ${movement.description ? `<p class="text-sm text-gray-700">${movement.description}</p>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-inbox text-4xl text-gray-300 mb-2"></i>
+                        <p class="text-gray-500">Nenhuma movimentação encontrada</p>
+                        <p class="text-sm text-gray-400 mt-1">Clique em "Sincronizar" para buscar andamentos</p>
+                    </div>
+                `;
+            }
+        } else {
+            container.innerHTML = '<p class="text-red-500 text-center py-8">Erro ao carregar andamentos</p>';
+        }
+    } catch (error) {
+        console.error('Error loading movements:', error);
+        container.innerHTML = '<p class="text-red-500 text-center py-8">Erro de conexão</p>';
+    }
+}
+
+async function syncProcessDetails() {
+    if (!currentProcessId) return;
+
+    const btn = document.getElementById('syncProcessBtn');
+    const originalHtml = btn.innerHTML;
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sincronizando...';
+
+        const response = await fetch(`${API_URL}/api/v1/processes/${currentProcessId}/sync`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Sincronização concluída!\n${result.movements_found || 0} movimentações encontradas\n${result.new_movements || 0} novas movimentações salvas`);
+            loadProcessMovements(currentProcessId);
+        } else {
+            const error = await response.json();
+            alert(`Erro ao sincronizar: ${error.detail || 'Erro desconhecido'}`);
+        }
+    } catch (error) {
+        console.error('Error syncing process:', error);
+        alert('Erro de conexão ao sincronizar processo');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    }
 }
 async function deleteProcess(id) {
     if (confirm('Tem certeza que deseja excluir este processo?')) {
