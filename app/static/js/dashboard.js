@@ -44,7 +44,8 @@ function showSection(section) {
         'clients': 'Clientes',
         'processes': 'Processos Judiciais',
         'lawyers': 'Advogados',
-        'law-firms': 'Escritórios de Advocacia'
+        'law-firms': 'Escritórios de Advocacia',
+        'financial': 'Financeiro'
     };
     document.getElementById('page-title').textContent = titles[section];
 
@@ -53,6 +54,10 @@ function showSection(section) {
     if (section === 'processes') loadProcesses();
     if (section === 'lawyers') loadLawyers();
     if (section === 'law-firms') loadFirms();
+    if (section === 'financial') {
+        loadFinancialSummary();
+        loadFinancialRecords();
+    }
 }
 
 // Load current user
