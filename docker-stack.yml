@@ -48,7 +48,7 @@ services:
     volumes:
       - uploads:/app/uploads
     networks:
-      - network-public
+      - network_public
       - drwell_internal
     secrets:
       - secret_key
@@ -72,7 +72,7 @@ services:
           memory: 256M
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=network-public"
+        - "traefik.docker.network=network_public"
 
         # HTTP Router
         - "traefik.http.routers.drwell-api.rule=Host(`drwell.tombrito.com.br`) || Host(`api.drwell.tombrito.com.br`)"
@@ -104,7 +104,7 @@ services:
       - SECRET_KEY_FILE=/run/secrets/secret_key
       - DATAJUD_API_KEY=cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==
     networks:
-      - network-public
+      - network_public
       - drwell_internal
     secrets:
       - secret_key
@@ -137,7 +137,7 @@ services:
       - SECRET_KEY_FILE=/run/secrets/secret_key
       - DATAJUD_API_KEY=cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==
     networks:
-      - network-public
+      - network_public
       - drwell_internal
     secrets:
       - secret_key
@@ -169,13 +169,13 @@ services:
     environment:
       - REDIS_URL=redis://redis_redis:6379/0
     networks:
-      - network-public
+      - network_public
       - drwell_internal
     deploy:
       replicas: 1
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=network-public"
+        - "traefik.docker.network=network_public"
 
         # HTTP Router
         - "traefik.http.routers.drwell-flower.rule=Host(`flower.drwell.tombrito.com.br`)"
@@ -200,7 +200,7 @@ services:
       - celery_worker
 
 networks:
-  network-public:
+  network_public:
     external: true
   drwell_internal:
     driver: overlay
