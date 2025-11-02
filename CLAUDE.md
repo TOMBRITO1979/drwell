@@ -1,0 +1,951 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+**Note**: There is also a `README.md` file (in Portuguese) that focuses on deployment instructions for end users. This CLAUDE.md file is the comprehensive technical reference for development.
+
+## Project Overview
+
+AdvTom is a multitenant SaaS system for law firms with integration to DataJud CNJ (Brazilian court system). The system uses Docker Swarm for deployment with Traefik as reverse proxy handling SSL termination.
+
+**Live URLs:**
+- Frontend: https://app.advwell.pro
+- Backend API: https://api.advwell.pro
+
+**Current Versions:**
+- Backend: v3-documents (Document management feature)
+- Frontend: v3-documents (Document management feature)
+- Database: PostgreSQL 16 with Document table for file management
+
+**Latest Updates (02/11/2025 22:04 UTC):**
+- ✅ **Document Management** - New "Documentos" tab for managing client/case documents
+- ✅ **External Links** - Support for Google Drive, Google Docs, Minio, and custom links
+- ✅ **Autocomplete Search** - Search documents by client name/CPF or process number
+- ✅ **Document Modal** - Add and view documents with metadata (name, description, type, date)
+- ✅ **Complete Backup** - Full system backup created at `/root/advtom/backups/20251102_220404_v3_documents/`
+
+**Previous Updates (02/11/2025 21:29 UTC):**
+- ✅ **Parts Table View** - Changed from cards to clean table format showing only essential fields
+- ✅ **Birth Date Field** - Added birthDate column to case_parts table and UI
+- ✅ **Edit Modal** - Click "Editar" button in any row to edit all part fields
+
+**Previous Updates (02/11/2025):**
+- ✅ **URL Migration** - System migrated from advtom.com to advwell.pro
+- ✅ **Case Parts Save/Load Fix** - Fixed issue where parts weren't being saved or loaded correctly
+- ✅ **Database Population** - 646+ records across all tables (5 companies, 26 users, 75 clients, 50 cases)
+
+**Previous Updates (01/11/2025):**
+- ✅ **Case Parts Management** - Add parties to cases (Autor, Réu, Representante Legal)
+- ✅ **Client Autocomplete** - Smart search for 5000+ clients with filtering
+- ✅ **Conditional Fields** - Different fields based on party type (AUTOR has email, civil status, profession, RG)
+- ✅ **Company Settings Page** - Configure company information (address, phone, city, state, ZIP, logo)
+- ✅ **Enhanced PDF Reports** - Company data automatically included in PDF headers
+- ✅ **Financial Module** - PDF/CSV export with professional formatting
+- ✅ **SSL Certificates** - Auto-renewal with Let's Encrypt (valid until Jan 2026)
+- ✅ Support for large datasets (1000+ records) with efficient filtering
+
+## Technology Stack
+
+### Backend
+- Node.js + Express + TypeScript
+- PostgreSQL 16 + Prisma ORM
+- JWT Authentication
+- AWS S3 for document storage
+- Nodemailer (SMTP)
+- node-cron for scheduled tasks
+- PDFKit for PDF generation
+- Axios for external API calls
+
+### Frontend
+- React 18 + TypeScript + Vite
+- TailwindCSS for styling
+- Zustand for state management (not React Context API)
+- React Router for routing
+- Axios for API calls
+
+### Infrastructure
+- Docker Swarm for orchestration
+- Traefik for reverse proxy + SSL
+- PostgreSQL 16 database
+- Nginx for frontend serving
+
+## Development Commands
+
+### Backend Development
+```bash
+cd backend
+npm install
+npm run dev                    # Start dev server with hot reload
+npm run build                  # Compile TypeScript
+npm start                      # Run compiled code
+npm run prisma:generate        # Generate Prisma client
+npm run prisma:migrate         # Run migrations
+npm run prisma:studio          # Open Prisma Studio GUI
+```
+
+### Frontend Development
+```bash
+cd frontend
+npm install
+npm run dev                    # Start Vite dev server (port 5173)
+npm run build                  # Build for production
+npm run preview                # Preview production build
+```
+
+### Testing & Verification
+```bash
+# Database verification
+./check_database.sh            # Quick database check
+./check_complete_database.sh   # Complete database inspection
+./verify_data.sh               # Verify data integrity
+./verify_all_users.sh          # Check all users in database
+
+# Service logs and monitoring
+./check_logs.sh                # Backend logs
+./check_frontend_logs.sh       # Frontend logs
+./check_all_logs.sh            # All service logs
+./check_new_logs.sh            # Recent logs only
+./check_services.sh            # Service status
+
+# Data management
+node create_test_data.js       # Create test data
+node create_complete_data.js   # Create complete dataset
+node test_api.js               # Test API endpoints
+node test_login.js             # Test authentication
+./test_complete_flow.sh        # End-to-end flow test
+
+# User management scripts
+./update_to_superadmin.sh      # Promote user to SUPER_ADMIN
+./fix_pedro_role.sh            # Fix specific user roles
+
+# Backup
+./criar_backup.sh              # Create complete system backup
+```
+
+### Deployment
+```bash
+./deploy_expect.sh             # Automated deployment script
+docker stack deploy -c docker-compose.yml advtom  # Manual deployment
+docker stack ps advtom         # Check service status
+docker service logs advtom_backend -f   # View backend logs
+```
+
+## Architecture
+
+### Multitenant Design
+
+The system implements **row-level multitenancy** where all tenants share the same database but data is isolated by `companyId`:
+
+- Every data model (except User and Company) has a `companyId` foreign key
+- The `validateTenant` middleware enforces tenant isolation (backend/src/middleware/tenant.ts:5)
+- Super Admins bypass tenant validation and can access all companies
+- Regular users can only access data from their company
+
+### Authentication Flow
+
+1. **Registration** (auth.routes.ts): Creates a new Company and Admin user atomically
+2. **Login** (auth.controller.ts:45): Returns JWT token with user role and companyId
+3. **Token Storage**: Frontend stores JWT in localStorage
+4. **Request Authentication**: `auth` middleware validates JWT and attaches user to request
+5. **Tenant Validation**: `validateTenant` middleware ensures data isolation
+
+### User Roles
+
+- **SUPER_ADMIN**: Manages companies, bypasses tenant restrictions
+- **ADMIN**: Manages their company and its users
+- **USER**: Basic access with permission-based restrictions
+
+Roles are enforced in backend/src/middleware/auth.ts and checked via `req.user.role`.
+
+### Permission System
+
+The system has a fine-grained permission model (backend/prisma/schema.prisma):
+- Each User can have multiple Permissions
+- Permissions are resource-based (e.g., "clients", "cases", "settings")
+- Each permission has three flags: `canView`, `canEdit`, `canDelete`
+- Currently permissions are in the schema but not actively enforced in controllers (role-based access is primary)
+- Future enhancement: Add permission checks in controllers for USER role
+
+### DataJud Integration
+
+DataJud is Brazil's unified court data system. Integration lives in backend/src/services/datajud.service.ts:
+
+- **Automatic Sync**: Cron job runs daily at 2 AM (backend/src/index.ts:63)
+- **Manual Sync**: Available via API endpoint for individual cases
+- **Tribunal Support**: TJRJ, TJSP, TJMG, TRF1-5
+- **Search Strategy**: Tries all tribunals sequentially until match found
+- **Movement Updates**: Deletes old movements and replaces with fresh data
+
+The cron job syncs all ACTIVE cases by:
+1. Fetching case from DataJud API
+2. Deleting existing movements
+3. Creating new movements
+4. Updating `lastSyncedAt` timestamp
+
+### State Management
+
+Frontend uses **Zustand** (not Context API) for global state:
+
+- **AuthContext**: Actually a Zustand store (frontend/src/contexts/AuthContext.tsx:29)
+- Pattern: `create<StateInterface>((set) => ({ ... }))`
+- Access via: `const { user, login, logout } = useAuth()`
+
+### Database Schema
+
+Key relationships (backend/prisma/schema.prisma):
+- `Company` → has many `User`, `Client`, `Case`
+- `User` → belongs to `Company`, has many `Permission`
+- `Client` → belongs to `Company`, has many `Case`
+- `Case` → belongs to `Company` and `Client`, has many `CaseMovement` and `CaseDocument`
+
+All relations use `onDelete: Cascade` for automatic cleanup.
+
+### API Routes Structure
+
+All routes are under `/api` prefix (backend/src/routes/index.ts):
+- `/api/auth/*` - Authentication (login, register, password reset)
+- `/api/users/*` - User management
+- `/api/companies/*` - Company management (SUPER_ADMIN only)
+- `/api/clients/*` - Client management
+- `/api/cases/*` - Case management and DataJud sync
+- `/api/financial/*` - Financial transaction management (income/expense tracking)
+- `/api/documents/*` - Document management (uploads and external links)
+
+Routes are protected by `authenticateToken` and `validateTenant` middlewares.
+
+### File Uploads
+
+Documents are stored in AWS S3 (backend/src/utils/s3.ts):
+- Upload handled via multer middleware
+- Files stored with company/case hierarchy
+- Presigned URLs for secure access
+- Metadata stored in `CaseDocument` table
+
+### Financial Module
+
+The financial module provides income and expense tracking for law firms (backend/src/controllers/financial.controller.ts):
+
+**Features:**
+- Track income (INCOME) and expense (EXPENSE) transactions
+- Link transactions to clients (required) and cases (optional)
+- Automatic balance calculation (total income - total expenses)
+- Filter by transaction type, client, case, and date range
+- Search by description, client name, or CPF
+- Pagination support for large datasets
+- Export transactions to PDF and CSV formats
+
+**Database Model** (backend/prisma/schema.prisma):
+- `FinancialTransaction` model with fields: id, companyId, clientId, caseId, type, description, amount, date
+- `TransactionType` enum: INCOME | EXPENSE
+- Belongs to Company and Client (required), Case (optional)
+
+**API Endpoints** (backend/src/routes/financial.routes.ts):
+- `GET /api/financial` - List transactions with filters and pagination
+- `GET /api/financial/summary` - Get financial summary (income, expense, balance)
+- `GET /api/financial/:id` - Get single transaction
+- `POST /api/financial` - Create new transaction
+- `PUT /api/financial/:id` - Update transaction
+- `DELETE /api/financial/:id` - Delete transaction
+- `GET /api/financial/export/pdf` - Export transactions to PDF
+- `GET /api/financial/export/csv` - Export transactions to CSV
+
+**Frontend** (frontend/src/pages/Financial.tsx):
+- Summary cards showing total income, expenses, and balance
+- **Autocomplete search for clients and cases** - Type-ahead search that filters as you type
+  - Client autocomplete: Search by name or CPF, displays suggestions in real-time
+  - Case autocomplete: Search by process number or subject
+  - Supports large datasets (1000+ records) efficiently
+- Filter controls for type, client, and date range
+- Transaction table with full CRUD operations
+- **Export buttons for PDF and CSV generation**
+  - PDF: Professional formatted report with summary and transaction details
+  - CSV: Excel-compatible format with UTF-8 BOM encoding
+
+### Company Settings Module
+
+The settings module allows admins to configure their company information, which is then used in generated PDF reports (backend/src/controllers/company.controller.ts):
+
+**Features:**
+- Update company name, email, phone
+- Configure complete address (street, city, state, ZIP code)
+- Set company logo URL
+- Data automatically included in PDF report headers
+- Restricted to ADMIN and SUPER_ADMIN roles
+
+**Database Fields** (backend/prisma/schema.prisma):
+- Extended `Company` model with fields: city, state, zipCode, logo
+- All fields are optional except name and email
+
+**API Endpoints** (backend/src/routes/company.routes.ts):
+- `GET /api/companies/own` - Get current user's company settings (ADMIN+)
+- `PUT /api/companies/own` - Update current user's company settings (ADMIN+)
+- `GET /api/companies` - List all companies (SUPER_ADMIN only)
+- `POST /api/companies` - Create new company (SUPER_ADMIN only)
+- `PUT /api/companies/:id` - Update any company (SUPER_ADMIN only)
+
+**Frontend** (frontend/src/pages/Settings.tsx):
+- Clean form interface with two sections: Basic Information and Address
+- Real-time validation
+- Success/error notifications
+- Information box explaining PDF integration
+- Accessible via `/settings` route or Settings menu item
+
+**Important Route Order:**
+Routes with literal paths (`/own`) must be defined BEFORE parameterized routes (`/:id`) to avoid routing conflicts.
+
+```typescript
+// ✅ Correct order
+router.get('/own', requireAdmin, controller.getOwn);
+router.put('/own', requireAdmin, controller.updateOwn);
+router.put('/:id', requireSuperAdmin, controller.update);
+
+// ❌ Wrong order (would treat "own" as an ID)
+router.put('/:id', requireSuperAdmin, controller.update);
+router.put('/own', requireAdmin, controller.updateOwn);
+```
+
+### Document Management Module
+
+The document management module allows users to store and organize documents related to clients and cases, supporting both file uploads and external links (backend/src/controllers/document.controller.ts):
+
+**Features:**
+- Store documents for clients or cases (one required)
+- Support for two storage types: uploads (S3) and external links
+- External link types: Google Drive, Google Docs, Minio, Other
+- Autocomplete search by client name/CPF or process number
+- View all documents for a specific client or case
+- Open documents (S3 presigned URLs or external links)
+- Delete documents with cascade cleanup
+
+**Database Model** (backend/prisma/schema.prisma):
+- `Document` model with fields: id, companyId, caseId, clientId, name, description, storageType, fileUrl, fileKey, fileSize, fileType, externalUrl, externalType, uploadedBy, createdAt, updatedAt
+- `StorageType` enum: upload | link
+- `ExternalType` enum: google_drive | google_docs | minio | other
+- Belongs to Company, Client (optional), Case (optional), User (uploader)
+- Check constraints: must have either caseId OR clientId (not both)
+- Check constraints: upload requires fileUrl, link requires externalUrl
+
+**API Endpoints** (backend/src/routes/document.routes.ts):
+- `GET /api/documents` - List documents with filters (clientId, caseId, storageType, search, pagination)
+- `GET /api/documents/search` - Search documents by clientId or caseId
+- `GET /api/documents/:id` - Get single document with related data
+- `POST /api/documents` - Create new document
+- `PUT /api/documents/:id` - Update document (name, description, externalUrl, externalType)
+- `DELETE /api/documents/:id` - Delete document
+
+**Frontend** (frontend/src/pages/Documents.tsx):
+- Search interface: Select client or case, autocomplete dropdown
+- "Visualizar Documentos" button: Opens modal with document list
+- "Adicionar Documento" button: Opens modal to add new document
+- Document form: Name, description, storage type (upload/link), external URL, external type
+- Document list: Shows name, type, date, uploader, with "Abrir" and "Excluir" buttons
+- **Current limitation:** File upload shows warning to use external links (upload functionality prepared but not implemented)
+- Accessible via `/documents` route with "Documentos" menu item
+
+**Migration:** `/root/advtom/backend/migrations_manual/add_documents.sql`
+
+**Future Enhancements:**
+- Implement actual file upload to S3
+- Add document preview (PDF, images)
+- Implement document editing
+- Add filters and sorting in document list
+- Automatic S3 file deletion when document is deleted
+
+## Important Patterns
+
+### Making Database Queries
+
+Always use the Prisma client singleton from `backend/src/utils/prisma.ts`:
+```typescript
+import prisma from '../utils/prisma';
+```
+
+For tenant-scoped queries, always filter by `companyId`:
+```typescript
+const clients = await prisma.client.findMany({
+  where: { companyId: req.user.companyId }
+});
+```
+
+### Adding New Protected Routes
+
+1. Create controller in `backend/src/controllers/`
+2. Create route file in `backend/src/routes/`
+3. Apply middleware: `router.use(authenticateToken, validateTenant)`
+4. Register route in `backend/src/routes/index.ts`
+
+### Frontend API Calls
+
+Use the configured axios instance from `frontend/src/services/api.ts`:
+```typescript
+import api from '../services/api';
+const response = await api.get('/endpoint');
+```
+
+This instance automatically includes JWT token in headers and redirects to `/login` on 401 errors.
+
+### Implementing Autocomplete Search
+
+For autocomplete functionality with large datasets:
+
+**Frontend Pattern:**
+```typescript
+// State management
+const [searchText, setSearchText] = useState('');
+const [filteredResults, setFilteredResults] = useState<Item[]>([]);
+const [showSuggestions, setShowSuggestions] = useState(false);
+
+// Filter items as user types
+useEffect(() => {
+  if (searchText) {
+    const filtered = items.filter(item =>
+      item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      (item.identifier && item.identifier.includes(searchText))
+    );
+    setFilteredResults(filtered);
+  } else {
+    setFilteredResults(items);
+  }
+}, [searchText, items]);
+
+// Render autocomplete dropdown
+{showSuggestions && filteredResults.length > 0 && (
+  <div className="absolute z-10 w-full mt-1 bg-white border shadow-lg max-h-60 overflow-y-auto">
+    {filteredResults.map((item) => (
+      <div onClick={() => handleSelect(item)} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+        {item.name}
+      </div>
+    ))}
+  </div>
+)}
+```
+
+**Best Practices:**
+- Load all items once (use `limit: 1000` in initial API call)
+- Filter client-side for instant response
+- Use `position: relative` on parent container for dropdown positioning
+- Add `z-index: 10` to ensure dropdown appears above other elements
+- Implement keyboard navigation for accessibility (optional enhancement)
+
+### Implementing File Exports
+
+**PDF Export (Backend):**
+```typescript
+import PDFDocument from 'pdfkit';
+
+export const exportPDF = async (req: AuthRequest, res: Response) => {
+  const doc = new PDFDocument({ margin: 50 });
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
+
+  doc.pipe(res);
+
+  // Add content
+  doc.fontSize(20).text('Report Title', { align: 'center' });
+  doc.fontSize(10).text(`Date: ${new Date().toLocaleDateString('pt-BR')}`);
+
+  // Add data
+  data.forEach((item, index) => {
+    doc.text(`${index + 1}. ${item.description}`);
+    if ((index + 1) % 10 === 0) doc.addPage(); // Pagination
+  });
+
+  doc.end();
+};
+```
+
+**CSV Export (Backend):**
+```typescript
+export const exportCSV = async (req: AuthRequest, res: Response) => {
+  const csvHeader = 'Column1,Column2,Column3\n';
+  const csvRows = data.map(item => {
+    const col1 = `"${item.name}"`;
+    const col2 = item.value;
+    return `${col1},${col2}`;
+  }).join('\n');
+
+  const csv = csvHeader + csvRows;
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=report.csv');
+  res.send('\ufeff' + csv); // BOM for Excel UTF-8 recognition
+};
+```
+
+**Frontend Export Call:**
+```typescript
+const handleExport = async (format: 'pdf' | 'csv') => {
+  const response = await api.get(`/endpoint/export/${format}`, {
+    params: filters,
+    responseType: 'blob'
+  });
+
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `report_${new Date().toISOString().split('T')[0]}.${format}`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+};
+```
+
+### Case Parts Management
+
+**Database Schema:**
+The system includes a complete case parts management feature (v7-parts) allowing users to add parties to legal cases:
+
+```typescript
+// Enum for party types
+enum CasePartType {
+  AUTOR                // Plaintiff/Claimant
+  REU                  // Defendant
+  REPRESENTANTE_LEGAL  // Legal Representative
+}
+
+// Case Part Model
+model CasePart {
+  id          String       @id @default(uuid())
+  caseId      String
+  type        CasePartType
+
+  // Common fields
+  name        String
+  cpfCnpj     String?      // Individual or Corporate Tax ID
+  phone       String?
+  address     String?
+
+  // AUTOR-specific fields
+  email       String?
+  civilStatus String?      // Marital status
+  profession  String?
+  rg          String?      // National ID
+  birthDate   DateTime?    // Birth date ← NEW in v2-partes
+
+  case        Case         @relation(...)
+}
+```
+
+**API Endpoints (backend/src/routes/case-part.routes.ts:10-14):**
+```
+GET    /api/cases/:caseId/parts          # List all parts
+POST   /api/cases/:caseId/parts          # Create new part
+PUT    /api/cases/:caseId/parts/:partId  # Update part
+DELETE /api/cases/:caseId/parts/:partId  # Delete part
+```
+
+**Frontend Implementation:**
+
+**Table View (v2-partes) - frontend/src/pages/Cases.tsx:929-1007:**
+- Clean table layout replacing previous card-based grid
+- Columns displayed: Tipo, Nome, CPF/CNPJ, RG, Nascimento, Ações
+- Color-coded badges for part types (Autor=blue, Réu=red, Rep. Legal=green)
+- "Editar" button in each row opens edit modal
+- Date formatting in Brazilian format (DD/MM/YYYY)
+
+**Edit Modal (frontend/src/pages/Cases.tsx:1112-1287):**
+- Complete form with all fields
+- Conditional fields based on type (Email, Estado Civil, Profissão only for AUTOR)
+- Functions: `handleEditPart()` and `handleSaveEditedPart()`
+- Saves via PUT `/cases/:caseId/parts/:partId`
+- Auto-reloads table after save
+
+**Add Parts Form (frontend/src/pages/Cases.tsx:568-751):**
+- Autocomplete client selection (supports 5000+ clients)
+- Dynamic form with conditional fields based on party type
+- Client-side validation before submission
+
+**Conditional Fields Logic:**
+- All types: name (required), cpfCnpj, phone, address, rg, birthDate
+- AUTOR only: email, civilStatus, profession (additional fields)
+- REU & REPRESENTANTE: only common fields
+
+**Migration:** `/root/advtom/backend/migrations_manual/add_case_parts.sql`
+
+**Critical Fix (02/11/2025):**
+Fixed two issues in `frontend/src/pages/Cases.tsx` that prevented case parts from being saved and loaded:
+
+1. **handleEdit Function (lines 269-299):** Now fetches complete case details including parts via API call when editing a case, rather than relying only on the passed object parameter.
+
+2. **handleSubmit Function (lines 210-225):** Now differentiates between creating new parts (POST) and updating existing parts (PUT) based on presence of `part.id`:
+   ```typescript
+   if (part.id) {
+     // Update existing part
+     await api.put(`/cases/${caseId}/parts/${part.id}`, part);
+   } else {
+     // Create new part
+     await api.post(`/cases/${caseId}/parts`, part);
+   }
+   ```
+
+**Testing:** Full CRUD test performed successfully. Parts are now properly created, updated, loaded in case details, and persist across edits. See `/root/advtom/case_parts_fix_verification.md` for complete test results.
+
+### Middleware Chain Order
+
+Backend routes follow this middleware chain (backend/src/routes/*.routes.ts):
+1. **Rate Limiter** (global, 100 req/15min per IP)
+2. **CORS** (allows frontend origin)
+3. **Helmet** (security headers)
+4. **authenticate** - Validates JWT, attaches user to `req.user`
+5. **validateTenant** - Checks companyId and company active status (bypassed for SUPER_ADMIN)
+6. **requireRole/requireAdmin/requireSuperAdmin** - Optional role-based access control
+
+Example protected route:
+```typescript
+import { authenticate, requireAdmin } from '../middleware/auth';
+import { validateTenant } from '../middleware/tenant';
+
+router.use(authenticate, validateTenant);
+router.delete('/:id', requireAdmin, controller.delete);
+```
+
+## URL Configuration for Distribution
+
+When distributing to new environments, update these locations:
+
+1. **docker-compose.yml**: Change `API_URL`, `FRONTEND_URL`, `VITE_API_URL`, and Traefik host rules
+2. **Rebuild Frontend**: `docker build --build-arg VITE_API_URL=https://NEW_API_URL/api -t tomautomations/advwell-frontend:v1-advwell frontend/`
+3. **Deploy**: Run `./deploy_expect.sh` after updating server hostname
+
+**Critical**: The frontend MUST be rebuilt because Vite bakes the API URL into the bundle at build time via `import.meta.env.VITE_API_URL` (frontend/src/services/api.ts:4).
+
+**Migration Example (advtom.com → advwell.pro):**
+```bash
+# Update docker-compose.yml URLs
+# Then rebuild frontend with new URL
+docker build --no-cache --build-arg VITE_API_URL=https://api.advwell.pro/api \
+  -t tomautomations/advwell-frontend:v1-advwell frontend/
+docker push tomautomations/advwell-frontend:v1-advwell
+# Update service
+docker service update --image tomautomations/advwell-frontend:v1-advwell advtom_frontend
+```
+
+### Build Arguments Explained
+
+- `VITE_API_URL`: Must include `/api` suffix (e.g., `https://api.advwell.pro/api`)
+- Frontend Dockerfile uses ARG to inject this at build time
+- Backend doesn't need rebuild for URL changes (uses runtime environment variables)
+- Use `--no-cache` flag when changing URLs to prevent Docker from using cached layers
+
+## Environment Variables
+
+Critical variables in docker-compose.yml:
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Secret for signing JWT tokens
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME` - S3 configuration
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` - Email configuration
+- `DATAJUD_API_KEY` - CNJ DataJud API access
+- `API_URL`, `FRONTEND_URL` - Service URLs for CORS and email links
+
+## Common Tasks
+
+### Creating a Super Admin
+
+```bash
+docker exec -it $(docker ps -q -f name=advtom_backend) sh
+npx prisma studio
+# In Prisma Studio UI, edit user and set role to SUPER_ADMIN
+```
+
+### Running Prisma Migrations in Production
+
+```bash
+# Access running backend container
+docker exec -it $(docker ps -q -f name=advtom_backend) sh
+
+# Generate Prisma client (after schema changes)
+npx prisma generate
+
+# Run pending migrations
+npx prisma migrate deploy
+
+# (Optional) Create a new migration locally first
+# cd backend
+# npx prisma migrate dev --name descriptive_name
+```
+
+### Troubleshooting Database Connection
+
+```bash
+# Check if database is running
+docker service ps advtom_postgres
+
+# Test database connection from backend
+docker exec -it $(docker ps -q -f name=advtom_backend) sh
+# Inside container:
+npx prisma db pull  # Will fail if DB unreachable
+```
+
+### Database Backup & System Restore
+
+#### Quick Database Backup
+```bash
+docker exec $(docker ps -q -f name=advtom_postgres) pg_dump -U postgres advtom > backup.sql
+```
+
+#### Complete System Backup (RECOMMENDED)
+
+**Latest Backup:** `/root/advtom/backups/20251102_220404_v3_documents/` ✅ **CURRENT**
+- ✅ PostgreSQL database dump with documents table (159KB, 1486 lines)
+- ✅ Backend source code v3-documents (100M)
+- ✅ Frontend source code v3-documents with Documents page (25M)
+- ✅ Docker images (frontend: 53M, backend: 833M)
+- ✅ docker-compose.yml with advwell.pro URLs
+- ✅ Updated CLAUDE.md and PLANEJAMENTO_DOCUMENTOS.md
+- ✅ Automated restore script included
+- **Date:** 02/11/2025 22:04 UTC
+- **Total Size:** 1010M (1.0GB)
+- **Features:** Document Management + External Links + Autocomplete Search
+- **Status:** 100% Functional - All features tested and working
+
+**Previous Backups:**
+- `/root/advtom/backups/20251102_212911_v2_partes_tabela/` - Table view for parts + birthDate (02/11/2025 21:29 UTC)
+- `/root/advtom/backups/20251102_194618_advwell_functional/` - advwell.pro migration + case parts fix (02/11/2025 19:46 UTC)
+- `/root/advtom/backups/20251101_194500_v7_parts/` - Case Parts Management (01/11/2025 19:45 UTC)
+- `/root/advtom/backups/20251101_183529_v6_settings/` - Company Settings (01/11/2025 18:35 UTC, 1.01GB)
+- `/root/advtom/backups/20251101_013228_financeiro_funcional_v1/` - Financial module (01/11/2025 01:32 UTC)
+- `/root/advtom/backups/20251030_194403_sistema_funcional/` - Basic system (30/10/2025 19:44 UTC)
+
+#### Creating a New Backup
+
+```bash
+# Set backup directory
+BACKUP_DIR="/root/advtom/backups/$(date +%Y%m%d_%H%M%S)_backup"
+mkdir -p $BACKUP_DIR
+
+# 1. Backup database
+docker exec $(docker ps -q -f name=advtom_postgres) pg_dump -U postgres -d advtom > $BACKUP_DIR/database_backup.sql
+
+# 2. Backup code
+tar -czf $BACKUP_DIR/backend_code.tar.gz -C /root/advtom backend
+tar -czf $BACKUP_DIR/frontend_code.tar.gz -C /root/advtom frontend
+
+# 3. Backup configurations
+cp /root/advtom/docker-compose.yml $BACKUP_DIR/
+docker service inspect advtom_backend > $BACKUP_DIR/service_backend.json
+docker service inspect advtom_frontend > $BACKUP_DIR/service_frontend.json
+docker service inspect advtom_postgres > $BACKUP_DIR/service_postgres.json
+
+# 4. Export Docker images
+docker save tomautomations/advtom-frontend:latest -o $BACKUP_DIR/frontend_image.tar
+docker save tomautomations/advtom-backend:latest -o $BACKUP_DIR/backend_image.tar
+
+echo "✅ Backup completo criado em: $BACKUP_DIR"
+```
+
+#### Restoring from Backup
+
+**Automated Restore (RECOMMENDED):**
+```bash
+# Restore to latest functional state (v2-partes with table view)
+/root/advtom/backups/20251102_212911_v2_partes_tabela/restore.sh
+```
+
+This script will:
+1. Stop all services
+2. Restore Docker images
+3. Restore source code
+4. Restore configurations
+5. Redeploy system
+6. Restore database
+7. Verify everything works
+
+**Manual Restore Process:**
+
+```bash
+# 1. Stop services
+docker stack rm advtom
+sleep 15
+
+# 2. Load Docker images
+docker load -i /path/to/backup/frontend_image.tar
+docker load -i /path/to/backup/backend_image.tar
+
+# 3. Restore code (optional, if images exist)
+cd /root/advtom
+tar -xzf /path/to/backup/backend_code.tar.gz
+tar -xzf /path/to/backup/frontend_code.tar.gz
+
+# 4. Restore docker-compose.yml
+cp /path/to/backup/docker-compose.yml /root/advtom/
+
+# 5. Redeploy
+docker stack deploy -c docker-compose.yml advtom
+sleep 40
+
+# 6. Restore database
+docker exec -i $(docker ps -q -f name=advtom_postgres) psql -U postgres -d advtom < /path/to/backup/database_backup.sql
+
+# 7. Verify
+curl -k https://api.advwell.pro/health
+```
+
+**Important Notes:**
+- ⚠️ Restoring will REPLACE current data with backup data
+- ✅ Make a backup of the current state before restoring
+- ✅ The automated script creates a log file for troubleshooting
+- ✅ Reference: `/root/advtom/backups/20251102_212911_v2_partes_tabela/BACKUP_INFO.md`
+
+### Viewing Logs in Production
+
+```bash
+docker service logs advtom_backend -f
+docker service logs advtom_frontend -f
+docker service logs advtom_postgres -f
+```
+
+### Updating Production
+
+1. Make code changes locally
+2. Rebuild and push Docker images (if using custom registry)
+3. Run `./deploy_expect.sh` or `docker stack deploy -c docker-compose.yml advtom`
+4. Docker Swarm performs rolling update automatically
+
+## Troubleshooting
+
+### Common Issues
+
+**Frontend can't connect to backend:**
+- Check if backend is running: `docker service ps advtom_backend`
+- Verify API URL in frontend build: Check `VITE_API_URL` was set correctly at build time
+- Test backend directly: `curl -k https://api.advwell.pro/health`
+- Check Traefik routing: `docker service logs traefik_traefik -f`
+
+**Database connection errors:**
+- Verify PostgreSQL is running: `docker service ps advtom_postgres`
+- Check DATABASE_URL in backend environment
+- Test connection: `docker exec -it $(docker ps -q -f name=advtom_backend) npx prisma db pull`
+
+**Case parts not saving/loading:**
+- Ensure you're on v1-advwell or later (includes the fix)
+- Check backend logs for errors: `./check_logs.sh`
+- Verify CasePart table exists: `./check_complete_database.sh`
+
+**DataJud sync not working:**
+- Check DATAJUD_API_KEY is valid in docker-compose.yml
+- Backend logs will show sync errors at 2 AM daily
+- Manually test sync via UI "Sincronizar" button
+- Verify case process number format is correct
+
+**SSL certificate issues:**
+- Certificates auto-renew via Let's Encrypt (Traefik handles this)
+- Check Traefik logs: `docker service logs traefik_traefik -f`
+- Ensure DNS is pointing to the server before deployment
+- Certificates stored in Traefik volume
+
+**Migrations failing:**
+- Always run `npx prisma generate` after schema changes
+- For production: Use `npx prisma migrate deploy` (doesn't prompt)
+- For development: Use `npx prisma migrate dev --name description`
+- If stuck: Check `_prisma_migrations` table in database
+
+**File upload failures:**
+- Verify AWS credentials in docker-compose.yml
+- Check S3_BUCKET_NAME exists and is accessible
+- Test S3 connection from backend container
+- Check file size limits in backend/src/middleware/upload.ts
+
+## Security Considerations
+
+- Passwords hashed with bcrypt (factor 10)
+- JWT tokens expire (check auth.controller.ts for expiry)
+- Rate limiting: 100 requests per 15 minutes per IP
+- Helmet.js security headers enabled
+- CORS restricted to configured frontend URL
+- Trust proxy set to 1 (Traefik)
+- All database operations use Prisma (SQL injection protection)
+
+## Development Workflow
+
+### Local Development Setup
+
+1. **Start Backend**:
+   ```bash
+   cd backend
+   npm install
+   # Create .env with DATABASE_URL, JWT_SECRET, AWS credentials, etc.
+   npx prisma generate
+   npx prisma migrate dev
+   npm run dev  # Runs on port 3000
+   ```
+
+2. **Start Frontend**:
+   ```bash
+   cd frontend
+   npm install
+   # Create .env with VITE_API_URL=http://localhost:3000/api
+   npm run dev  # Runs on port 5173
+   ```
+
+3. **Access**: Frontend at http://localhost:5173 → calls backend at http://localhost:3000
+
+### Production Deployment Workflow
+
+1. Make changes to code
+2. Test locally
+3. Commit changes (if using version control)
+4. Build Docker images:
+   ```bash
+   docker build -t tomautomations/advwell-backend:v1-advwell backend/
+   docker build --build-arg VITE_API_URL=https://api.advwell.pro/api \
+     -t tomautomations/advwell-frontend:v1-advwell frontend/
+   ```
+5. Push images to DockerHub:
+   ```bash
+   docker push tomautomations/advwell-backend:v1-advwell
+   docker push tomautomations/advwell-frontend:v1-advwell
+   ```
+6. Deploy: `./deploy_expect.sh` or manually via `docker stack deploy`
+7. Verify: Check logs and test endpoints:
+   ```bash
+   curl -k https://api.advwell.pro/health
+   docker service logs advtom_backend -f
+   ```
+
+### Key Files to Modify
+
+- **Adding new API endpoint**:
+  - Controller in `backend/src/controllers/`
+  - Route in `backend/src/routes/`
+  - Register in `backend/src/routes/index.ts`
+- **Adding database table**:
+  - Update `backend/prisma/schema.prisma`
+  - Run `npx prisma migrate dev --name add_table_name`
+- **Adding frontend page**:
+  - Create page in `frontend/src/pages/`
+  - Add route in `frontend/src/App.tsx`
+  - Add navigation in `frontend/src/components/Layout.tsx` (if needed)
+
+## Important Code Locations
+
+### Backend Structure
+- **Entry point**: `backend/src/index.ts` - Server initialization, cron jobs, middleware setup
+- **Database client**: `backend/src/utils/prisma.ts` - Singleton Prisma client instance
+- **Authentication**:
+  - Middleware: `backend/src/middleware/auth.ts`
+  - Controller: `backend/src/controllers/auth.controller.ts`
+- **Tenant isolation**: `backend/src/middleware/tenant.ts` - Enforces row-level multitenancy
+- **DataJud integration**: `backend/src/services/datajud.service.ts` - Court system API client
+- **File uploads**: `backend/src/utils/s3.ts` - AWS S3 operations
+
+### Frontend Structure
+- **Entry point**: `frontend/src/main.tsx` - App initialization
+- **Routing**: `frontend/src/App.tsx` - All route definitions
+- **API client**: `frontend/src/services/api.ts` - Configured Axios instance with JWT interceptor
+- **Auth store**: `frontend/src/contexts/AuthContext.tsx` - Zustand store (not React Context!)
+- **Layout**: `frontend/src/components/Layout.tsx` - Main layout with navigation
+- **Key pages**:
+  - Cases: `frontend/src/pages/Cases.tsx` - Includes case parts management
+  - Financial: `frontend/src/pages/Financial.tsx` - Income/expense tracking
+  - Settings: `frontend/src/pages/Settings.tsx` - Company configuration
+
+### Database
+- **Schema**: `backend/prisma/schema.prisma` - Complete database schema
+- **Manual migrations**: `backend/migrations_manual/` - SQL scripts for complex migrations
+- **Key tables**: Company, User, Client, Case, CasePart, CaseMovement, FinancialTransaction
+
+### Configuration
+- **Production**: `docker-compose.yml` - All environment variables and service configs
+- **Backend dev**: `backend/.env` (create from environment variables in docker-compose.yml)
+- **Frontend dev**: `frontend/.env` (set VITE_API_URL=http://localhost:3000/api)
