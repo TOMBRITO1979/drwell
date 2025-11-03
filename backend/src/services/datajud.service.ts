@@ -64,7 +64,35 @@ export class DatajudService {
       );
 
       if (response.data?.hits?.hits?.length > 0) {
-        return response.data.hits.hits[0]._source as DatajudCase;
+        const hits = response.data.hits.hits;
+
+        // Pega o primeiro hit como base (geralmente G1)
+        const firstCase = hits[0]._source as DatajudCase;
+
+        // Se houver múltiplos hits (múltiplos graus - G1, G2, G3, etc.), combina todos os movimentos
+        if (hits.length > 1) {
+          const allMovements: DatajudMovement[] = [];
+
+          hits.forEach((hit: any) => {
+            const caseData = hit._source;
+            if (caseData.movimentos && caseData.movimentos.length > 0) {
+              allMovements.push(...caseData.movimentos);
+            }
+          });
+
+          // Remove duplicatas baseado em codigo + dataHora + nome
+          const uniqueMovements = Array.from(
+            new Map(
+              allMovements.map(m => [`${m.codigo}_${m.dataHora}_${m.nome}`, m])
+            ).values()
+          );
+
+          firstCase.movimentos = uniqueMovements;
+
+          console.log(`Processo ${processNumber}: Combinados ${hits.length} graus (${allMovements.length} movimentos totais, ${uniqueMovements.length} únicos)`);
+        }
+
+        return firstCase;
       }
 
       return null;

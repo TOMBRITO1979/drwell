@@ -13,28 +13,35 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
 - Backend API: https://api.advwell.pro
 
 **Current Versions:**
-- Backend: v9-modern-emails (Modern Email Templates + Mobile Responsive)
-- Frontend: v8-mobile-responsive (Mobile-First Design)
+- Backend: v13-multi-grade-sync (DataJud Multi-Grade Synchronization)
+- Frontend: v11-financial-responsive (Mobile-Responsive Financial Module)
 - Database: PostgreSQL 16 with complete schema for multitenant law firm management
 
-**Latest Updates (03/11/2025):**
-- ✅ **Modern Email Templates** - Redesigned password reset and welcome emails
-  - Professional HTML email templates with gradients and modern design
-  - Responsive layout for desktop and mobile devices
-  - Branded header with AdvWell logo and blue gradient
-  - Visual icons (🔐 for security, 👋 for welcome)
-  - Security warning boxes with highlighted important information
-  - Compatible with all email clients (Gmail, Outlook, Apple Mail)
-- ✅ **Mobile-First Responsive Design** - Complete mobile optimization
-  - Sticky header that remains visible when scrolling
-  - Slide-in sidebar animation with dark overlay on mobile
-  - Touch-friendly inputs and buttons (minimum 44px height)
-  - iOS-specific fixes to prevent auto-zoom on input focus
-  - Responsive padding and spacing throughout the app
-  - ResponsiveTable component for horizontal scroll on mobile
-- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251103_032216_v9_modern_mobile/`
+**Latest Updates (03/11/2025 21:00 UTC):**
+- ✅ **DataJud Multi-Grade Synchronization** - CRITICAL FIX for case movements
+  - **Problem Fixed:** System now captures movements from ALL court degrees (G1, G2, G3, etc.)
+  - **Before:** Only movements from G1 (First Instance) were captured
+  - **After:** Automatically combines movements from G1 + G2 (Appeals) + G3 (Higher Courts)
+  - **Impact:** Cases with appeals now show ALL updated movements
+  - **Example:** Process `0008903-36.2022.8.19.0038` went from 62 movements (only G1) to 78 movements (G1+G2), with latest movement from 30/06/2025
+  - **Technical:** Modified `backend/src/services/datajud.service.ts` to detect and merge multiple hits from DataJud API
+  - **Auto-Deduplication:** Removes duplicate movements based on code + date + name
+- ✅ **Mobile-Responsive Button Layout** - Financial, Clients, Cases, Documents pages
+  - Buttons sized proportionally for mobile screens (3-column grid on mobile, flex on desktop)
+  - Compact icons (16px mobile, 20px desktop) with adaptive text visibility
+  - Fixed Documents page button positioning within search section
+- ✅ **Company Creation CNPJ Fix** - Fixed unique constraint violation
+  - Companies can now be created without CNPJ (optional field)
+  - Multiple companies with empty CNPJ supported
+  - Fixed conditional field inclusion in `company.controller.ts`
+- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251103_210053_v13_multi_grade_sync/`
 - ✅ **GitHub Updated** - Latest code pushed to repository
-- ✅ **DockerHub Updated** - Images `tomautomations/advwell-frontend:v8-mobile-responsive` and `backend:v9-modern-emails`
+- ✅ **DockerHub Updated** - Images `tomautomations/advwell-frontend:v11-financial-responsive` and `backend:v13-multi-grade-sync`
+
+**Previous Updates (03/11/2025 03:22 UTC):**
+- ✅ **Modern Email Templates** - Redesigned password reset and welcome emails
+- ✅ **Mobile-First Responsive Design** - Complete mobile optimization
+- ✅ **Collapsible Sidebar** - Expandable/collapsible sidebar with localStorage persistence
 
 **Previous Updates (03/11/2025 02:20 UTC):**
 - ✅ **Sidebar Recolhível** - Funcionalidade para expandir/recolher sidebar no desktop

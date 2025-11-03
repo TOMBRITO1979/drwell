@@ -307,33 +307,36 @@ const Financial: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Financeiro</h1>
-          <div className="flex space-x-3">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Financeiro</h1>
+
+          {/* Action Buttons - Mobile: Grid 3 columns, Desktop: Flex row */}
+          <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
             <button
               onClick={handleExportPDF}
-              className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-red-700 transition-colors text-xs sm:text-base"
               title="Exportar PDF"
             >
-              <FileText size={20} />
-              <span>PDF</span>
+              <FileText size={16} className="sm:w-5 sm:h-5" />
+              <span className="text-[10px] sm:text-base leading-tight">PDF</span>
             </button>
             <button
               onClick={handleExportCSV}
-              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-green-600 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-green-700 transition-colors text-xs sm:text-base"
               title="Exportar CSV"
             >
-              <Download size={20} />
-              <span>CSV</span>
+              <Download size={16} className="sm:w-5 sm:h-5" />
+              <span className="text-[10px] sm:text-base leading-tight">CSV</span>
             </button>
             <button
               onClick={handleNew}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-blue-600 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-blue-700 transition-colors text-xs sm:text-base"
             >
-              <Plus size={20} />
-              <span>Nova Transação</span>
+              <Plus size={16} className="sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Nova Transação</span>
+              <span className="sm:hidden text-[10px] leading-tight">Nova</span>
             </button>
           </div>
         </div>

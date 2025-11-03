@@ -85,7 +85,7 @@ export class CompanyController {
         const company = await tx.company.create({
           data: {
             name: companyName,
-            cnpj,
+            ...(cnpj && { cnpj }), // Só inclui cnpj se tiver valor
             email: companyEmail,
           },
         });
@@ -120,7 +120,7 @@ export class CompanyController {
         where: { id },
         data: {
           name,
-          cnpj,
+          ...(cnpj !== undefined && { cnpj: cnpj || null }), // Só atualiza cnpj se foi enviado
           email,
           phone,
           address,

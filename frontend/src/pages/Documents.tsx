@@ -260,8 +260,8 @@ const Documents: React.FC = () => {
         </div>
 
       {/* Search Section */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Search Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -283,7 +283,7 @@ const Documents: React.FC = () => {
           </div>
 
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative sm:col-span-1 lg:col-span-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {searchType === 'client' ? 'Nome do Cliente ou CPF' : 'Número do Processo'}
             </label>
@@ -338,19 +338,19 @@ const Documents: React.FC = () => {
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-end gap-2">
+          {/* Action Buttons - Mobile: Stack, Tablet+: Side by side */}
+          <div className="sm:col-span-2 lg:col-span-2 flex flex-col sm:flex-row items-stretch gap-2 sm:items-end">
             <button
               onClick={handleSearch}
               disabled={loading || (!selectedClient && !selectedCase)}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap"
             >
               {loading ? 'Buscando...' : 'Visualizar Documentos'}
             </button>
             <button
               onClick={handleAddDocument}
               disabled={!selectedClient && !selectedCase}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap"
             >
               + Adicionar Documento
             </button>
