@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { Plus, Search, Edit, X, Building2, Users, FileText, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Search, Edit, X, Building2, Users, FileText, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
 
 interface Company {
   id: string;
@@ -28,6 +28,7 @@ const Companies: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
@@ -148,6 +149,29 @@ const Companies: React.FC = () => {
       loadCompanies();
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Erro ao alterar status da empresa');
+    }
+  };
+
+  const handleDeleteClick = (company: Company) => {
+    setSelectedCompany(company);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedCompany) return;
+
+    try {
+      const response = await api.delete(`/companies/${selectedCompany.id}`);
+
+      const deletedCount = response.data.deletedItems;
+      const message = `Empresa deletada! ${deletedCount.users} usuários, ${deletedCount.clients} clientes e ${deletedCount.cases} processos foram removidos.`;
+
+      toast.success(message);
+      setShowDeleteModal(false);
+      setSelectedCompany(null);
+      loadCompanies();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Erro ao deletar empresa');
     }
   };
 
@@ -272,6 +296,13 @@ const Companies: React.FC = () => {
                             title="Editar"
                           >
                             <Edit size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(company)}
+                            className="text-red-600 hover:text-red-800 transition-colors"
+                            title="Deletar"
+                          >
+                            <Trash2 size={18} />
                           </button>
                         </div>
                       </td>
@@ -508,6 +539,56 @@ const Companies: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Exclusão */}
+      {showDeleteModal && selectedCompany && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+              <Trash2 className="text-red-600" size={24} />
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+              Deletar Empresa?
+            </h3>
+
+            <p className="text-sm text-gray-600 text-center mb-4">
+              Você está prestes a deletar a empresa <strong>{selectedCompany.name}</strong>.
+            </p>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-6">
+              <p className="text-sm text-yellow-800 font-medium mb-2">⚠️ Atenção: Esta ação é IRREVERSÍVEL!</p>
+              <p className="text-xs text-yellow-700">
+                Serão deletados permanentemente:
+              </p>
+              <ul className="text-xs text-yellow-700 mt-2 space-y-1">
+                <li>• {selectedCompany._count.users} usuário(s)</li>
+                <li>• {selectedCompany._count.clients} cliente(s)</li>
+                <li>• {selectedCompany._count.cases} processo(s)</li>
+                <li>• Todos os dados relacionados (documentos, transações, etc.)</li>
+              </ul>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedCompany(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              >
+                Sim, Deletar
+              </button>
+            </div>
           </div>
         </div>
       )}

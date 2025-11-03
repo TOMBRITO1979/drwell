@@ -61,7 +61,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">AdvTom</h1>
+              <h1 className="text-2xl font-bold text-gray-900">AdvWell</h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right hidden sm:block">

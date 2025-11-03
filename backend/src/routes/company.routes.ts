@@ -14,5 +14,6 @@ router.put('/own', requireAdmin, companyController.updateOwn);
 router.get('/', requireSuperAdmin, companyController.list);
 router.post('/', requireSuperAdmin, companyController.create);
 router.put('/:id', requireSuperAdmin, companyController.update);
+router.delete('/:id', requireSuperAdmin, companyController.delete);
 
 export default router;

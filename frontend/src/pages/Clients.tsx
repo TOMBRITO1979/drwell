@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Layout from '../components/Layout';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { Plus, Search, Edit, Trash2, Eye, X } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, X, Download, Upload } from 'lucide-react';
 
 interface Client {
   id: string;
@@ -47,6 +47,9 @@ const Clients: React.FC = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importResults, setImportResults] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<ClientFormData>({
     name: '',
@@ -78,6 +81,66 @@ const Clients: React.FC = () => {
       toast.error('Erro ao carregar clientes');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      const response = await api.get('/clients/export/csv', {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `clientes_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      toast.success('CSV exportado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao exportar CSV');
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      toast.error('Por favor, selecione um arquivo CSV');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await api.post('/clients/import/csv', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      setImportResults(response.data.results);
+      setShowImportModal(true);
+      loadClients();
+
+      if (response.data.results.success > 0) {
+        toast.success(`${response.data.results.success} cliente(s) importado(s) com sucesso!`);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Erro ao importar CSV');
+    }
+
+    // Limpar o input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -181,13 +244,38 @@ const Clients: React.FC = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
-          <button
-            onClick={handleNewClient}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={20} />
-            <span>Novo Cliente</span>
-          </button>
+          <div className="flex space-x-3">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept=".csv"
+              className="hidden"
+            />
+            <button
+              onClick={handleImportClick}
+              className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+              title="Importar clientes de um arquivo CSV"
+            >
+              <Upload size={20} />
+              <span>Importar CSV</span>
+            </button>
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+              title="Exportar todos os clientes para CSV"
+            >
+              <Download size={20} />
+              <span>Exportar CSV</span>
+            </button>
+            <button
+              onClick={handleNewClient}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              <Plus size={20} />
+              <span>Novo Cliente</span>
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-4">
@@ -654,6 +742,63 @@ const Clients: React.FC = () => {
                   setSelectedClient(null);
                 }}
                 className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Resultados da Importação */}
+      {showImportModal && importResults && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Resultados da Importação</h2>
+              <button
+                onClick={() => setShowImportModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-blue-50 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-blue-600">{importResults.total}</p>
+                  <p className="text-sm text-gray-600">Total de linhas</p>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-green-600">{importResults.success}</p>
+                  <p className="text-sm text-gray-600">Importados</p>
+                </div>
+                <div className="bg-red-50 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-red-600">{importResults.errors.length}</p>
+                  <p className="text-sm text-gray-600">Erros</p>
+                </div>
+              </div>
+
+              {importResults.errors.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Erros encontrados:</h3>
+                  <div className="bg-red-50 rounded-lg p-4 max-h-60 overflow-y-auto">
+                    {importResults.errors.map((error: any, index: number) => (
+                      <div key={index} className="mb-2 pb-2 border-b border-red-200 last:border-0">
+                        <p className="text-sm font-medium text-red-800">
+                          Linha {error.line}: {error.name}
+                        </p>
+                        <p className="text-sm text-red-600">{error.error}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowImportModal(false)}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 Fechar
               </button>

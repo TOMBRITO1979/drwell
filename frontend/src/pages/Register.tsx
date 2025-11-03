@@ -60,7 +60,7 @@ const Register: React.FC = () => {
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Cadastro</h1>
-          <p className="text-gray-600 mt-2">Crie sua conta no AdvTom</p>
+          <p className="text-gray-600 mt-2">Crie sua conta no AdvWell</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

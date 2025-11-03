@@ -198,6 +198,48 @@ export class CompanyController {
       res.status(500).json({ error: 'Erro ao atualizar empresa' });
     }
   }
+
+  // Super Admin - Deletar empresa
+  async delete(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+
+      // Verifica se a empresa existe
+      const company = await prisma.company.findUnique({
+        where: { id },
+        include: {
+          _count: {
+            select: {
+              users: true,
+              clients: true,
+              cases: true,
+            },
+          },
+        },
+      });
+
+      if (!company) {
+        return res.status(404).json({ error: 'Empresa não encontrada' });
+      }
+
+      // Deleta a empresa (CASCADE vai deletar tudo relacionado automaticamente)
+      await prisma.company.delete({
+        where: { id },
+      });
+
+      res.json({
+        message: 'Empresa deletada com sucesso',
+        deletedItems: {
+          users: company._count.users,
+          clients: company._count.clients,
+          cases: company._count.cases,
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao deletar empresa:', error);
+      res.status(500).json({ error: 'Erro ao deletar empresa' });
+    }
+  }
 }
 
 export default new CompanyController();
