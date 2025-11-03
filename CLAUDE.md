@@ -13,18 +13,34 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
 - Backend API: https://api.advwell.pro
 
 **Current Versions:**
-- Backend: v6-collapsible-sidebar (Sidebar Recolhível)
-- Frontend: v6-collapsible-sidebar (Sidebar Recolhível)
+- Backend: v9-modern-emails (Modern Email Templates + Mobile Responsive)
+- Frontend: v8-mobile-responsive (Mobile-First Design)
 - Database: PostgreSQL 16 with complete schema for multitenant law firm management
 
-**Latest Updates (03/11/2025 02:20 UTC):**
+**Latest Updates (03/11/2025):**
+- ✅ **Modern Email Templates** - Redesigned password reset and welcome emails
+  - Professional HTML email templates with gradients and modern design
+  - Responsive layout for desktop and mobile devices
+  - Branded header with AdvWell logo and blue gradient
+  - Visual icons (🔐 for security, 👋 for welcome)
+  - Security warning boxes with highlighted important information
+  - Compatible with all email clients (Gmail, Outlook, Apple Mail)
+- ✅ **Mobile-First Responsive Design** - Complete mobile optimization
+  - Sticky header that remains visible when scrolling
+  - Slide-in sidebar animation with dark overlay on mobile
+  - Touch-friendly inputs and buttons (minimum 44px height)
+  - iOS-specific fixes to prevent auto-zoom on input focus
+  - Responsive padding and spacing throughout the app
+  - ResponsiveTable component for horizontal scroll on mobile
+- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251103_032216_v9_modern_mobile/`
+- ✅ **GitHub Updated** - Latest code pushed to repository
+- ✅ **DockerHub Updated** - Images `tomautomations/advwell-frontend:v8-mobile-responsive` and `backend:v9-modern-emails`
+
+**Previous Updates (03/11/2025 02:20 UTC):**
 - ✅ **Sidebar Recolhível** - Funcionalidade para expandir/recolher sidebar no desktop
 - ✅ **Persistência de Estado** - Preferência do sidebar salva em localStorage
 - ✅ **UX Aprimorada** - Transição suave de 300ms, tooltips quando recolhido
 - ✅ **Responsividade** - Largura adaptável: 64px (recolhido) / 256px (expandido)
-- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251103_022005_v6_collapsible_sidebar/`
-- ✅ **GitHub Updated** - Latest code pushed to repository (commit 997d3b0)
-- ✅ **DockerHub Updated** - Images `tomautomations/advwell-frontend:v6-collapsible-sidebar` and `backend:v6-collapsible-sidebar`
 
 **Previous Updates (03/11/2025 01:49 UTC):**
 - ✅ **CSV Import/Export** - Bulk import and export of clients and cases
@@ -575,6 +591,202 @@ const handleExport = async (format: 'pdf' | 'csv') => {
   link.remove();
 };
 ```
+
+### Email Templates
+
+The system includes modern, responsive HTML email templates for password reset and welcome emails (v9-modern-emails):
+
+**Location:** `backend/src/utils/email.ts`
+
+**Email Functions:**
+- `sendPasswordResetEmail(email: string, resetToken: string)` - Password reset email
+- `sendWelcomeEmail(email: string, name: string)` - Welcome email for new users
+
+**Design Features:**
+- **Responsive HTML Tables** - Compatible with all email clients (Gmail, Outlook, Apple Mail)
+- **Modern Visual Design:**
+  - Branded header with blue gradient (linear-gradient(135deg, #2563eb 0%, #1e40af 100%))
+  - Professional typography using system fonts (-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto)
+  - Visual icons in colored circles (🔐 for security, 👋 for welcome)
+  - Prominent CTA button with gradient and shadow
+  - Security warning boxes with yellow background and orange border
+  - Clean footer with copyright and company info
+- **Mobile Responsive** - Adapts to different screen sizes
+- **Inline CSS** - All styles inline for maximum email client compatibility
+
+**Password Reset Email Structure:**
+```html
+1. Header: AdvWell logo with blue gradient background
+2. Lock icon in blue circle
+3. Title: "Redefinição de Senha"
+4. Main message explaining the password reset request
+5. Large "Redefinir Minha Senha" button (links to reset URL)
+6. Divider
+7. Alternative link in gray box (for manual copy-paste)
+8. Security warning box (yellow with ⚠️ icon, 1-hour expiration notice)
+9. Footer message (ignore if not requested)
+10. Professional footer with copyright
+```
+
+**Welcome Email Structure:**
+```html
+1. Header: AdvWell logo with blue gradient background
+2. Wave icon in green circle
+3. Title: "Bem-vindo ao AdvWell!"
+4. Personalized greeting with user's name
+5. Success message
+6. Features box listing main system capabilities:
+   - ✓ Gerenciar clientes e processos
+   - ✓ Controle financeiro completo
+   - ✓ Integração com DataJud CNJ
+   - ✓ Gestão de documentos
+7. Large "Acessar o Sistema" button (links to frontend URL)
+8. Alternative link
+9. Professional sign-off from "Equipe AdvWell"
+10. Footer with copyright
+```
+
+**Configuration:**
+Email settings are configured in `docker-compose.yml`:
+```yaml
+SMTP_HOST: smtp.gmail.com
+SMTP_PORT: 587
+SMTP_USER: appadvwell@gmail.com
+SMTP_PASSWORD: [app-specific password]
+SMTP_FROM: AdvWell <appadvwell@gmail.com>
+FRONTEND_URL: https://app.advwell.pro
+```
+
+**Best Practices:**
+- Always use HTML tables for layout (better email client support)
+- Use inline CSS only (external stylesheets don't work in most email clients)
+- Test emails in multiple clients before deploying
+- Include both HTML button and plain text link
+- Keep email width at max 600px for optimal display
+- Use web-safe fonts or system font stacks
+
+### Mobile Responsiveness
+
+The frontend has been optimized for mobile devices with a mobile-first approach (v8-mobile-responsive):
+
+**Key Files:**
+- `frontend/src/components/Layout.tsx` - Main layout with mobile optimizations
+- `frontend/src/components/ResponsiveTable.tsx` - Reusable table wrapper for horizontal scroll
+- `frontend/src/styles/index.css` - Global mobile-first CSS utilities
+
+**Layout Component Improvements (frontend/src/components/Layout.tsx):**
+
+**Header:**
+- Sticky positioning (`sticky top-0 z-30`) - Remains visible when scrolling
+- Responsive padding: `px-3 sm:px-4 lg:px-8` and `py-3 sm:py-4`
+- Responsive logo size: `text-lg sm:text-2xl`
+- Mobile menu button with hamburger icon (visible on `lg:hidden`)
+- User info hidden on mobile (`hidden sm:block`)
+- Smaller logout icon on mobile: `size={18} className="sm:w-5 sm:h-5"`
+
+**Sidebar:**
+- Mobile: Slide-in animation with `translate-x-0` / `-translate-x-full`
+- Dark overlay when open: `bg-black bg-opacity-50 z-20 lg:hidden`
+- Smooth transitions: `transition-transform duration-300 ease-in-out`
+- Fixed positioning on mobile, sticky on desktop
+- Z-index layering: `z-30 lg:z-10` for proper stacking
+- Closes on overlay click or menu item selection
+- Desktop: Collapsible with saved state in localStorage
+
+**Main Content:**
+- Responsive padding: `p-3 sm:p-4 lg:p-8`
+- Prevents overflow: `w-full min-w-0`
+- Centered with max-width: `max-w-7xl mx-auto`
+
+**Global CSS Utilities (frontend/src/styles/index.css):**
+
+**Touch-Friendly Elements:**
+```css
+input, select, textarea {
+  min-h-[44px];  /* Apple HIG minimum touch target */
+  text-base;     /* Readable font size */
+}
+
+button {
+  min-h-[44px];
+  touch-manipulation;  /* Optimizes touch response */
+}
+```
+
+**iOS-Specific Fixes:**
+```css
+/* Prevents auto-zoom on input focus in iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+```
+
+**Responsive Table Utilities:**
+```css
+.responsive-table {
+  w-full;
+  overflow-x-auto;
+  -mx-3 sm:mx-0;  /* Extends to screen edges on mobile */
+}
+
+.modal-content {
+  w-full;
+  max-h-[90vh];
+  overflow-y-auto;
+}
+```
+
+**ResponsiveTable Component (frontend/src/components/ResponsiveTable.tsx):**
+
+Simple wrapper component for tables that need horizontal scrolling on mobile:
+
+```tsx
+import React from 'react';
+
+interface ResponsiveTableProps {
+  children: React.ReactNode;
+}
+
+const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ children }) => {
+  return (
+    <div className="w-full overflow-x-auto -mx-3 sm:mx-0">
+      <div className="inline-block min-w-full align-middle">
+        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ResponsiveTable;
+```
+
+**Usage:**
+```tsx
+<ResponsiveTable>
+  <table className="min-w-full divide-y divide-gray-300">
+    {/* table content */}
+  </table>
+</ResponsiveTable>
+```
+
+**Breakpoints (Tailwind CSS):**
+- `sm:` - 640px and up (small tablets)
+- `md:` - 768px and up (tablets)
+- `lg:` - 1024px and up (desktops)
+- Mobile-first: Default styles are for mobile, use breakpoints for larger screens
+
+**Best Practices:**
+- Always design mobile-first, then enhance for larger screens
+- Use `min-h-[44px]` for all interactive elements (buttons, inputs)
+- Test on real devices, not just browser dev tools
+- Use `-mx-3 sm:mx-0` pattern for full-width tables on mobile
+- Implement sticky headers for better navigation on scroll
+- Use `overflow-x-auto` for wide content that doesn't fit on small screens
+- Font size minimum 16px on inputs to prevent iOS auto-zoom
 
 ### Case Parts Management
 

@@ -68,44 +68,54 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* Overlay para mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
+      <header className="bg-white shadow-sm sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="mr-4 lg:hidden"
+                className="p-2 rounded-lg hover:bg-gray-100 lg:hidden"
+                aria-label="Menu"
               >
-                {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+                {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">AdvWell</h1>
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900">AdvWell</h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.companyName}</p>
+                <p className="text-sm font-medium text-gray-900 truncate max-w-[150px]">{user?.name}</p>
+                <p className="text-xs text-gray-500 truncate max-w-[150px]">{user?.companyName}</p>
               </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
+                className="p-2 rounded-lg hover:bg-gray-100 text-gray-700 hover:text-gray-900"
                 title="Sair"
+                aria-label="Sair"
               >
-                <LogOut size={20} />
+                <LogOut size={18} className="sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex relative">
         {/* Sidebar */}
         <aside
           className={`${
-            sidebarOpen ? 'block' : 'hidden'
-          } lg:block ${
-            sidebarCollapsed ? 'w-16' : 'w-64'
-          } bg-white shadow-lg min-h-screen fixed lg:sticky top-0 z-10 transition-all duration-300`}
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 ${
+            sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
+          } w-64 bg-white shadow-lg min-h-screen fixed lg:sticky top-0 z-30 lg:z-10 transition-transform duration-300 ease-in-out`}
         >
           {/* Botão de recolher (apenas desktop) */}
           <div className="hidden lg:flex justify-end p-2">
@@ -145,8 +155,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">{children}</div>
+        <main className="flex-1 p-3 sm:p-4 lg:p-8 w-full min-w-0">
+          <div className="max-w-7xl mx-auto w-full">{children}</div>
         </main>
       </div>
     </div>
