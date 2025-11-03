@@ -6,23 +6,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AdvTom is a multitenant SaaS system for law firms with integration to DataJud CNJ (Brazilian court system). The system uses Docker Swarm for deployment with Traefik as reverse proxy handling SSL termination.
+AdvWell is a multitenant SaaS system for law firms with integration to DataJud CNJ (Brazilian court system). The system uses Docker Swarm for deployment with Traefik as reverse proxy handling SSL termination.
 
 **Live URLs:**
 - Frontend: https://app.advwell.pro
 - Backend API: https://api.advwell.pro
 
 **Current Versions:**
-- Backend: v3-documents (Document management feature)
-- Frontend: v3-documents (Document management feature)
-- Database: PostgreSQL 16 with Document table for file management
+- Backend: v5-csv-import (CSV Import/Export + AdvWell Branding)
+- Frontend: v5-csv-import (CSV Import/Export + AdvWell Branding)
+- Database: PostgreSQL 16 with complete schema for multitenant law firm management
 
-**Latest Updates (02/11/2025 22:04 UTC):**
+**Latest Updates (03/11/2025 01:49 UTC):**
+- ✅ **CSV Import/Export** - Bulk import and export of clients and cases
+- ✅ **AdvWell Branding** - Complete rebranding from AdvTom to AdvWell
+- ✅ **Import Validation** - Detailed error reporting per line with success/failure counts
+- ✅ **Multiple Format Support** - Date formats (DD/MM/YYYY, YYYY-MM-DD) and currency values
+- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251103_014914_v5_csv_import_advwell_branding/`
+- ✅ **GitHub Updated** - Latest code pushed to repository (commit 8d7b6b6)
+- ✅ **DockerHub Updated** - Images `tomautomations/advwell-frontend:v5-csv-import` and `backend:v5-csv-import`
+
+**Previous Updates (02/11/2025 22:04 UTC):**
 - ✅ **Document Management** - New "Documentos" tab for managing client/case documents
 - ✅ **External Links** - Support for Google Drive, Google Docs, Minio, and custom links
 - ✅ **Autocomplete Search** - Search documents by client name/CPF or process number
 - ✅ **Document Modal** - Add and view documents with metadata (name, description, type, date)
-- ✅ **Complete Backup** - Full system backup created at `/root/advtom/backups/20251102_220404_v3_documents/`
 
 **Previous Updates (02/11/2025 21:29 UTC):**
 - ✅ **Parts Table View** - Changed from cards to clean table format showing only essential fields
@@ -302,6 +310,77 @@ router.put('/:id', requireSuperAdmin, controller.update);
 // ❌ Wrong order (would treat "own" as an ID)
 router.put('/:id', requireSuperAdmin, controller.update);
 router.put('/own', requireAdmin, controller.updateOwn);
+```
+
+### CSV Import/Export Module
+
+The CSV import/export feature allows bulk operations for clients and cases, essential for data migration and backup.
+
+**Features:**
+- Export all clients or cases to CSV format
+- Import clients and cases in bulk from CSV files
+- Detailed validation with line-by-line error reporting
+- Support for multiple date formats (DD/MM/YYYY, YYYY-MM-DD)
+- Currency parsing for Brazilian format (R$ 1.000,00)
+- Client lookup by CPF or name for case imports
+- UTF-8 BOM encoding for Excel compatibility
+
+**Backend Dependencies:**
+- `csv-parse` - CSV parsing library
+- `multer` - File upload middleware for multipart/form-data
+
+**API Endpoints:**
+
+**Clients** (backend/src/routes/client.routes.ts):
+- `GET /api/clients/export/csv` - Export all clients to CSV
+- `POST /api/clients/import/csv` - Import clients from CSV file
+
+**Cases** (backend/src/routes/case.routes.ts):
+- `GET /api/cases/export/csv` - Export all cases to CSV
+- `POST /api/cases/import/csv` - Import cases from CSV file
+
+**CSV Format - Clients:**
+```csv
+Nome,CPF,Email,Telefone,Endereço,Data de Nascimento,Observações
+João Silva,12345678900,joao@email.com,(11) 98765-4321,Rua A 123,01/01/1990,Cliente VIP
+```
+
+**CSV Format - Cases:**
+```csv
+Número do Processo,Cliente,CPF Cliente,Tribunal,Assunto,Valor,Status,Observações
+1234567-89.2024.8.19.0001,João Silva,12345678900,TJRJ,Ação Civil,R$ 10.000,00,ACTIVE,Processo em andamento
+```
+
+**Import Validation:**
+- **Clients:** Nome (required), CPF/Email (optional but recommended)
+- **Cases:** Número do Processo (required), Cliente or CPF Cliente (required)
+- Client lookup: Searches by CPF first, then by name if CPF not found
+- Duplicate detection: Process numbers must be unique
+
+**Frontend Implementation:**
+
+**Clients Page** (frontend/src/pages/Clients.tsx):
+- Purple "Importar CSV" button next to "Exportar CSV"
+- Hidden file input triggered by button click
+- Results modal showing total/success/error counts
+- Detailed error list with line numbers
+
+**Cases Page** (frontend/src/pages/Cases.tsx):
+- Same pattern as Clients page
+- Import validation includes client verification
+
+**Error Handling:**
+- Per-line validation prevents one error from blocking entire import
+- Results object contains: total, success count, and array of errors
+- Each error includes: line number, identifier (name/process number), error message
+
+**Implementation Details** (backend/src/controllers):
+```typescript
+// Type assertion for CSV records
+for (let i = 0; i < records.length; i++) {
+  const record = records[i] as any;
+  // Process record...
+}
 ```
 
 ### Document Management Module
@@ -686,8 +765,21 @@ docker exec $(docker ps -q -f name=advtom_postgres) pg_dump -U postgres advtom >
 
 #### Complete System Backup (RECOMMENDED)
 
-**Latest Backup:** `/root/advtom/backups/20251102_220404_v3_documents/` ✅ **CURRENT**
-- ✅ PostgreSQL database dump with documents table (159KB, 1486 lines)
+**Latest Backup:** `/root/advtom/backups/20251103_014914_v5_csv_import_advwell_branding/` ✅ **CURRENT**
+- ✅ PostgreSQL database dump (82KB)
+- ✅ Backend source code v5-csv-import with CSV import/export (100M)
+- ✅ Frontend source code v5-csv-import with AdvWell branding (25M)
+- ✅ Docker images (frontend: 53M, backend: 836M)
+- ✅ docker-compose.yml with advwell.pro URLs
+- ✅ Updated CLAUDE.md and BACKUP_INFO.md
+- ✅ Automated restore script included
+- **Date:** 03/11/2025 01:49 UTC
+- **Total Size:** 1013M (1.0GB)
+- **Features:** CSV Import/Export + AdvWell Complete Branding
+- **Status:** 100% Functional - All features tested and working
+
+**Previous Backups:**
+- `/root/advtom/backups/20251102_220404_v3_documents/` - Document Management (02/11/2025 22:04 UTC)
 - ✅ Backend source code v3-documents (100M)
 - ✅ Frontend source code v3-documents with Documents page (25M)
 - ✅ Docker images (frontend: 53M, backend: 833M)
