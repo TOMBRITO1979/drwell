@@ -18,7 +18,7 @@ services:
           - node.role == manager
 
   backend:
-    image: tomautomations/advwell-backend:v1-advwell
+    image: tomautomations/advwell-backend:v9-modern-emails
     environment:
       # Database
       - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-your_postgres_password_here}@postgres:5432/advtom
@@ -35,9 +35,9 @@ services:
       # SMTP
       - SMTP_HOST=smtp.gmail.com
       - SMTP_PORT=587
-      - SMTP_USER=wasolutionscorp@gmail.com
+      - SMTP_USER=appadvwell@gmail.com
       - SMTP_PASSWORD=${SMTP_PASSWORD:-your_smtp_password_here}
-      - SMTP_FROM=AdvTom <wasolutionscorp@gmail.com>
+      - SMTP_FROM=AdvWell <appadvwell@gmail.com>
 
       # API URLs
       - API_URL=https://api.advwell.pro
@@ -65,7 +65,7 @@ services:
         - "traefik.docker.network=network_public"
 
   frontend:
-    image: tomautomations/advwell-frontend:v1-advwell
+    image: tomautomations/advwell-frontend:v8-mobile-responsive
     environment:
       - VITE_API_URL=https://api.advwell.pro/api
     networks:
