@@ -20,13 +20,13 @@ export const sendPasswordResetEmail = async (
   const mailOptions = {
     from: config.smtp.from,
     to: email,
-    subject: 'Redefinição de Senha - AdvTom',
+    subject: 'Redefinição de Senha - AdvWell',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Redefinição de Senha</h2>
+        <h2 style="color: #333;">Redefinição de Senha - AdvWell</h2>
         <p>Você solicitou a redefinição de sua senha.</p>
         <p>Clique no botão abaixo para redefinir sua senha:</p>
-        <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; margin: 16px 0;">
+        <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 4px; margin: 16px 0;">
           Redefinir Senha
         </a>
         <p>Ou copie e cole este link no seu navegador:</p>
@@ -45,14 +45,14 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
   const mailOptions = {
     from: config.smtp.from,
     to: email,
-    subject: 'Bem-vindo ao AdvTom',
+    subject: 'Bem-vindo ao AdvWell',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Bem-vindo ao AdvTom!</h2>
+        <h2 style="color: #333;">Bem-vindo ao AdvWell!</h2>
         <p>Olá ${name},</p>
         <p>Sua conta foi criada com sucesso.</p>
         <p>Acesse o sistema em: <a href="${config.urls.frontend}">${config.urls.frontend}</a></p>
-        <p>Atenciosamente,<br>Equipe AdvTom</p>
+        <p>Atenciosamente,<br>Equipe AdvWell</p>
       </div>
     `,
   };
