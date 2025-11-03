@@ -13,18 +13,24 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
 - Backend API: https://api.advwell.pro
 
 **Current Versions:**
-- Backend: v5-csv-import (CSV Import/Export + AdvWell Branding)
-- Frontend: v5-csv-import (CSV Import/Export + AdvWell Branding)
+- Backend: v6-collapsible-sidebar (Sidebar Recolhível)
+- Frontend: v6-collapsible-sidebar (Sidebar Recolhível)
 - Database: PostgreSQL 16 with complete schema for multitenant law firm management
 
-**Latest Updates (03/11/2025 01:49 UTC):**
+**Latest Updates (03/11/2025 02:20 UTC):**
+- ✅ **Sidebar Recolhível** - Funcionalidade para expandir/recolher sidebar no desktop
+- ✅ **Persistência de Estado** - Preferência do sidebar salva em localStorage
+- ✅ **UX Aprimorada** - Transição suave de 300ms, tooltips quando recolhido
+- ✅ **Responsividade** - Largura adaptável: 64px (recolhido) / 256px (expandido)
+- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251103_022005_v6_collapsible_sidebar/`
+- ✅ **GitHub Updated** - Latest code pushed to repository (commit 997d3b0)
+- ✅ **DockerHub Updated** - Images `tomautomations/advwell-frontend:v6-collapsible-sidebar` and `backend:v6-collapsible-sidebar`
+
+**Previous Updates (03/11/2025 01:49 UTC):**
 - ✅ **CSV Import/Export** - Bulk import and export of clients and cases
 - ✅ **AdvWell Branding** - Complete rebranding from AdvTom to AdvWell
 - ✅ **Import Validation** - Detailed error reporting per line with success/failure counts
 - ✅ **Multiple Format Support** - Date formats (DD/MM/YYYY, YYYY-MM-DD) and currency values
-- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251103_014914_v5_csv_import_advwell_branding/`
-- ✅ **GitHub Updated** - Latest code pushed to repository (commit 8d7b6b6)
-- ✅ **DockerHub Updated** - Images `tomautomations/advwell-frontend:v5-csv-import` and `backend:v5-csv-import`
 
 **Previous Updates (02/11/2025 22:04 UTC):**
 - ✅ **Document Management** - New "Documentos" tab for managing client/case documents
@@ -765,20 +771,21 @@ docker exec $(docker ps -q -f name=advtom_postgres) pg_dump -U postgres advtom >
 
 #### Complete System Backup (RECOMMENDED)
 
-**Latest Backup:** `/root/advtom/backups/20251103_014914_v5_csv_import_advwell_branding/` ✅ **CURRENT**
+**Latest Backup:** `/root/advtom/backups/20251103_022005_v6_collapsible_sidebar/` ✅ **CURRENT**
 - ✅ PostgreSQL database dump (82KB)
-- ✅ Backend source code v5-csv-import with CSV import/export (100M)
-- ✅ Frontend source code v5-csv-import with AdvWell branding (25M)
+- ✅ Backend source code v6-collapsible-sidebar (100M)
+- ✅ Frontend source code v6-collapsible-sidebar with collapsible sidebar (25M)
 - ✅ Docker images (frontend: 53M, backend: 836M)
-- ✅ docker-compose.yml with advwell.pro URLs
+- ✅ docker-compose.yml with advwell.pro URLs and v6 images
 - ✅ Updated CLAUDE.md and BACKUP_INFO.md
 - ✅ Automated restore script included
-- **Date:** 03/11/2025 01:49 UTC
+- **Date:** 03/11/2025 02:20 UTC
 - **Total Size:** 1013M (1.0GB)
-- **Features:** CSV Import/Export + AdvWell Complete Branding
+- **Features:** Sidebar Recolhível + CSV Import/Export + AdvWell Complete Branding
 - **Status:** 100% Functional - All features tested and working
 
 **Previous Backups:**
+- `/root/advtom/backups/20251103_014914_v5_csv_import_advwell_branding/` - CSV Import/Export + AdvWell Branding (03/11/2025 01:49 UTC)
 - `/root/advtom/backups/20251102_220404_v3_documents/` - Document Management (02/11/2025 22:04 UTC)
 - ✅ Backend source code v3-documents (100M)
 - ✅ Frontend source code v3-documents with Documents page (25M)
