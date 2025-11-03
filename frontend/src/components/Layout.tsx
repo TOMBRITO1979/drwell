@@ -13,6 +13,8 @@ import {
   Menu,
   X,
   UserCog,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -24,6 +26,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+
+  // Carregar estado do sidebar do localStorage
+  React.useEffect(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    if (saved !== null) {
+      setSidebarCollapsed(saved === 'true');
+    }
+  }, []);
+
+  // Salvar estado do sidebar no localStorage
+  const toggleSidebarCollapse = () => {
+    const newState = !sidebarCollapsed;
+    setSidebarCollapsed(newState);
+    localStorage.setItem('sidebarCollapsed', String(newState));
+  };
 
   const handleLogout = () => {
     logout();
@@ -85,9 +103,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <aside
           className={`${
             sidebarOpen ? 'block' : 'hidden'
-          } lg:block w-64 bg-white shadow-lg min-h-screen fixed lg:sticky top-0 z-10`}
+          } lg:block ${
+            sidebarCollapsed ? 'w-16' : 'w-64'
+          } bg-white shadow-lg min-h-screen fixed lg:sticky top-0 z-10 transition-all duration-300`}
         >
-          <nav className="mt-8">
+          {/* Botão de recolher (apenas desktop) */}
+          <div className="hidden lg:flex justify-end p-2">
+            <button
+              onClick={toggleSidebarCollapse}
+              className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+              title={sidebarCollapsed ? 'Expandir' : 'Recolher'}
+            >
+              {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
+          </div>
+
+          <nav className={sidebarCollapsed ? 'mt-2' : 'mt-8'}>
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname.startsWith(item.path);
@@ -95,15 +126,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-3 px-6 py-3 ${
+                  className={`flex items-center ${
+                    sidebarCollapsed ? 'justify-center px-4' : 'space-x-3 px-6'
+                  } py-3 ${
                     isActive
                       ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                   onClick={() => setSidebarOpen(false)}
+                  title={sidebarCollapsed ? item.label : ''}
                 >
                   <Icon size={20} />
-                  <span>{item.label}</span>
+                  {!sidebarCollapsed && <span>{item.label}</span>}
                 </Link>
               );
             })}
