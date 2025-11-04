@@ -4,20 +4,21 @@ import prisma from '../utils/prisma';
 import datajudService from '../services/datajud.service';
 import { parse } from 'csv-parse/sync';
 
+// Função utilitária para formatar o último movimento
+function getUltimoAndamento(movimentos: any[]): string | null {
+  if (!movimentos || movimentos.length === 0) return null;
+
+  // Ordena por data decrescente e pega o mais recente
+  const sorted = [...movimentos].sort((a, b) =>
+    new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime()
+  );
+
+  const ultimo = sorted[0];
+  const data = new Date(ultimo.dataHora).toLocaleDateString('pt-BR');
+  return `${ultimo.nome} - ${data}`;
+}
+
 export class CaseController {
-  // Função helper para formatar o último movimento
-  private getUltimoAndamento(movimentos: any[]): string | null {
-    if (!movimentos || movimentos.length === 0) return null;
-
-    // Ordena por data decrescente e pega o mais recente
-    const sorted = [...movimentos].sort((a, b) =>
-      new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime()
-    );
-
-    const ultimo = sorted[0];
-    const data = new Date(ultimo.dataHora).toLocaleDateString('pt-BR');
-    return `${ultimo.nome} - ${data}`;
-  }
 
   async create(req: AuthRequest, res: Response) {
     try {
@@ -59,7 +60,7 @@ export class CaseController {
 
       // Formata o último andamento se houver dados do DataJud
       const ultimoAndamento = datajudData?.movimentos
-        ? this.getUltimoAndamento(datajudData.movimentos)
+        ? getUltimoAndamento(datajudData.movimentos)
         : null;
 
       // Cria o processo
@@ -293,7 +294,7 @@ export class CaseController {
 
       // Formata o último andamento
       const ultimoAndamento = datajudData.movimentos
-        ? this.getUltimoAndamento(datajudData.movimentos)
+        ? getUltimoAndamento(datajudData.movimentos)
         : null;
 
       // Atualiza a data de sincronização e o último andamento

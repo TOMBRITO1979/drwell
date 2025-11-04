@@ -13,11 +13,22 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
 - Backend API: https://api.advwell.pro
 
 **Current Versions:**
-- Backend: v15-text-andamento (informarCliente Text Field + View Modal)
+- Backend: v16-sync-fix (Synchronization Error Fixed)
 - Frontend: v13-text-andamento (informarCliente Text Field + View Modal)
 - Database: PostgreSQL 16 with complete schema for multitenant law firm management
 
-**Latest Updates (04/11/2025 03:00 UTC):**
+**Latest Updates (04/11/2025 03:15 UTC):**
+- ✅ **CRITICAL BUG FIX - Synchronization Error** - Fixed TypeError in syncMovements
+  - **Problem:** `TypeError: Cannot read properties of undefined (reading 'getUltimoAndamento')`
+  - **Root Cause:** Method `getUltimoAndamento` was a private class method, losing `this` context when called
+  - **Solution:** Moved `getUltimoAndamento` outside class as standalone utility function
+  - **Impact:** Synchronization now works without errors, cron jobs and manual syncs functional
+  - **File:** `backend/src/controllers/case.controller.ts` lines 7-19, 63, 297
+  - **Tests:** ✅ Build successful, ✅ Deployment successful, ✅ No errors in logs
+- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251104_031522_v16_sync_fix/` (1.01GB)
+- ✅ **DockerHub Updated** - Image pushed: `tomautomations/advwell-backend:v16-sync-fix`
+
+**Previous Updates (04/11/2025 03:00 UTC):**
 - ✅ **informarCliente Field - Boolean → Text** - MAJOR ENHANCEMENT for client communication
   - **Problem Fixed:** Field was just a checkbox (true/false), couldn't add explanatory text
   - **Before:** `informarCliente Boolean @default(false)` - just a flag
@@ -25,18 +36,13 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
   - **Migration:** `alter_informar_cliente_to_text.sql` - safely converted existing data
   - **Frontend:** Checkbox replaced with textarea (3 rows, placeholder text)
   - **Label:** Renamed to "Informar Andamento ao Cliente"
-  - **Use Case:** Lawyers can now write detailed explanations like "O processo foi concluso ao juiz em 30/06/2025 para análise. Aguardando decisão sobre o pedido de liminar."
 - ✅ **View Button in Cases Table** - Quick view without editing
   - **Eye Icon:** Added in actions column (lucide-react)
   - **Conditional Display:** Only shows when `informarCliente` has content
-  - **No Edit Mode:** View information without entering edit form
 - ✅ **Visualization Modal** - Complete case information display
   - **Content:** Process number, client name, subject, último andamento (DataJud), informarCliente text, process link
   - **Styling:** Blue box for DataJud movement, green highlighted box for client information
   - **Multi-line Support:** Text preserves line breaks with `whitespace-pre-wrap`
-  - **Location:** `frontend/src/pages/Cases.tsx` lines 1503-1580
-- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251104_030045_v15_text_andamento/` (1.01GB)
-- ✅ **DockerHub Updated** - Images pushed: `tomautomations/advwell-backend:v15-text-andamento` and `frontend:v13-text-andamento`
 
 **Previous Updates (03/11/2025 21:00 UTC):**
 - ✅ **DataJud Multi-Grade Synchronization** - CRITICAL FIX for case movements
@@ -1002,21 +1008,21 @@ docker exec $(docker ps -q -f name=advtom_postgres) pg_dump -U postgres advtom >
 
 #### Complete System Backup (RECOMMENDED)
 
-**Latest Backup:** `/root/advtom/backups/20251104_030045_v15_text_andamento/` ✅ **CURRENT**
+**Latest Backup:** `/root/advtom/backups/20251104_031522_v16_sync_fix/` ✅ **CURRENT**
 - ✅ PostgreSQL database dump (96KB)
-- ✅ Backend source code v15-text-andamento (100M)
-- ✅ Frontend source code v13-text-andamento with textarea and view modal (25M)
+- ✅ Backend source code v16-sync-fix with getUltimoAndamento fix (100M)
+- ✅ Frontend source code v13-text-andamento (25M)
 - ✅ Docker images (frontend: 53M, backend: 836M)
-- ✅ docker-compose.yml with advwell.pro URLs and v15/v13 images
-- ✅ Migration files including alter_informar_cliente_to_text.sql
-- ✅ Updated CLAUDE.md and BACKUP_INFO.md
+- ✅ docker-compose.yml with advwell.pro URLs and v16/v13 images
+- ✅ Updated CLAUDE.md and BACKUP_INFO.md with detailed fix documentation
 - ✅ Automated restore script included
-- **Date:** 04/11/2025 03:00 UTC
+- **Date:** 04/11/2025 03:15 UTC
 - **Total Size:** 1013M (1.0GB)
-- **Features:** informarCliente Text Field + View Modal + Eye Button
-- **Status:** 100% Functional - All features tested and working
+- **Fix:** Synchronization error corrected - getUltimoAndamento context issue
+- **Status:** 100% Functional - Sync errors eliminated
 
 **Previous Backups:**
+- `/root/advtom/backups/20251104_030045_v15_text_andamento/` - informarCliente Text Field (04/11/2025 03:00 UTC)
 - `/root/advtom/backups/20251103_210053_v13_multi_grade_sync/` - DataJud Multi-Grade Sync (03/11/2025 21:00 UTC)
 - `/root/advtom/backups/20251103_022005_v6_collapsible_sidebar/` - Collapsible Sidebar (03/11/2025 02:20 UTC)
 - `/root/advtom/backups/20251103_014914_v5_csv_import_advwell_branding/` - CSV Import/Export + AdvWell Branding (03/11/2025 01:49 UTC)

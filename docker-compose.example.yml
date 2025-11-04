@@ -18,7 +18,7 @@ services:
           - node.role == manager
 
   backend:
-    image: tomautomations/advwell-backend:v15-text-andamento
+    image: tomautomations/advwell-backend:v16-sync-fix
     environment:
       # Database
       - DATABASE_URL=postgresql://postgres:YOUR_POSTGRES_PASSWORD_HERE@postgres:5432/advtom
