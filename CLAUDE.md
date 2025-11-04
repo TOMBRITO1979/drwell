@@ -13,11 +13,32 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
 - Backend API: https://api.advwell.pro
 
 **Current Versions:**
-- Backend: v13-multi-grade-sync (DataJud Multi-Grade Synchronization)
-- Frontend: v11-financial-responsive (Mobile-Responsive Financial Module)
+- Backend: v15-text-andamento (informarCliente Text Field + View Modal)
+- Frontend: v13-text-andamento (informarCliente Text Field + View Modal)
 - Database: PostgreSQL 16 with complete schema for multitenant law firm management
 
-**Latest Updates (03/11/2025 21:00 UTC):**
+**Latest Updates (04/11/2025 03:00 UTC):**
+- ✅ **informarCliente Field - Boolean → Text** - MAJOR ENHANCEMENT for client communication
+  - **Problem Fixed:** Field was just a checkbox (true/false), couldn't add explanatory text
+  - **Before:** `informarCliente Boolean @default(false)` - just a flag
+  - **After:** `informarCliente String?` - full text field with multi-line support
+  - **Migration:** `alter_informar_cliente_to_text.sql` - safely converted existing data
+  - **Frontend:** Checkbox replaced with textarea (3 rows, placeholder text)
+  - **Label:** Renamed to "Informar Andamento ao Cliente"
+  - **Use Case:** Lawyers can now write detailed explanations like "O processo foi concluso ao juiz em 30/06/2025 para análise. Aguardando decisão sobre o pedido de liminar."
+- ✅ **View Button in Cases Table** - Quick view without editing
+  - **Eye Icon:** Added in actions column (lucide-react)
+  - **Conditional Display:** Only shows when `informarCliente` has content
+  - **No Edit Mode:** View information without entering edit form
+- ✅ **Visualization Modal** - Complete case information display
+  - **Content:** Process number, client name, subject, último andamento (DataJud), informarCliente text, process link
+  - **Styling:** Blue box for DataJud movement, green highlighted box for client information
+  - **Multi-line Support:** Text preserves line breaks with `whitespace-pre-wrap`
+  - **Location:** `frontend/src/pages/Cases.tsx` lines 1503-1580
+- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251104_030045_v15_text_andamento/` (1.01GB)
+- ✅ **DockerHub Updated** - Images pushed: `tomautomations/advwell-backend:v15-text-andamento` and `frontend:v13-text-andamento`
+
+**Previous Updates (03/11/2025 21:00 UTC):**
 - ✅ **DataJud Multi-Grade Synchronization** - CRITICAL FIX for case movements
   - **Problem Fixed:** System now captures movements from ALL court degrees (G1, G2, G3, etc.)
   - **Before:** Only movements from G1 (First Instance) were captured
@@ -27,16 +48,7 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
   - **Technical:** Modified `backend/src/services/datajud.service.ts` to detect and merge multiple hits from DataJud API
   - **Auto-Deduplication:** Removes duplicate movements based on code + date + name
 - ✅ **Mobile-Responsive Button Layout** - Financial, Clients, Cases, Documents pages
-  - Buttons sized proportionally for mobile screens (3-column grid on mobile, flex on desktop)
-  - Compact icons (16px mobile, 20px desktop) with adaptive text visibility
-  - Fixed Documents page button positioning within search section
 - ✅ **Company Creation CNPJ Fix** - Fixed unique constraint violation
-  - Companies can now be created without CNPJ (optional field)
-  - Multiple companies with empty CNPJ supported
-  - Fixed conditional field inclusion in `company.controller.ts`
-- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251103_210053_v13_multi_grade_sync/`
-- ✅ **GitHub Updated** - Latest code pushed to repository
-- ✅ **DockerHub Updated** - Images `tomautomations/advwell-frontend:v11-financial-responsive` and `backend:v13-multi-grade-sync`
 
 **Previous Updates (03/11/2025 03:22 UTC):**
 - ✅ **Modern Email Templates** - Redesigned password reset and welcome emails
@@ -990,20 +1002,23 @@ docker exec $(docker ps -q -f name=advtom_postgres) pg_dump -U postgres advtom >
 
 #### Complete System Backup (RECOMMENDED)
 
-**Latest Backup:** `/root/advtom/backups/20251103_022005_v6_collapsible_sidebar/` ✅ **CURRENT**
-- ✅ PostgreSQL database dump (82KB)
-- ✅ Backend source code v6-collapsible-sidebar (100M)
-- ✅ Frontend source code v6-collapsible-sidebar with collapsible sidebar (25M)
+**Latest Backup:** `/root/advtom/backups/20251104_030045_v15_text_andamento/` ✅ **CURRENT**
+- ✅ PostgreSQL database dump (96KB)
+- ✅ Backend source code v15-text-andamento (100M)
+- ✅ Frontend source code v13-text-andamento with textarea and view modal (25M)
 - ✅ Docker images (frontend: 53M, backend: 836M)
-- ✅ docker-compose.yml with advwell.pro URLs and v6 images
+- ✅ docker-compose.yml with advwell.pro URLs and v15/v13 images
+- ✅ Migration files including alter_informar_cliente_to_text.sql
 - ✅ Updated CLAUDE.md and BACKUP_INFO.md
 - ✅ Automated restore script included
-- **Date:** 03/11/2025 02:20 UTC
+- **Date:** 04/11/2025 03:00 UTC
 - **Total Size:** 1013M (1.0GB)
-- **Features:** Sidebar Recolhível + CSV Import/Export + AdvWell Complete Branding
+- **Features:** informarCliente Text Field + View Modal + Eye Button
 - **Status:** 100% Functional - All features tested and working
 
 **Previous Backups:**
+- `/root/advtom/backups/20251103_210053_v13_multi_grade_sync/` - DataJud Multi-Grade Sync (03/11/2025 21:00 UTC)
+- `/root/advtom/backups/20251103_022005_v6_collapsible_sidebar/` - Collapsible Sidebar (03/11/2025 02:20 UTC)
 - `/root/advtom/backups/20251103_014914_v5_csv_import_advwell_branding/` - CSV Import/Export + AdvWell Branding (03/11/2025 01:49 UTC)
 - `/root/advtom/backups/20251102_220404_v3_documents/` - Document Management (02/11/2025 22:04 UTC)
 - ✅ Backend source code v3-documents (100M)

@@ -5,9 +5,23 @@ import datajudService from '../services/datajud.service';
 import { parse } from 'csv-parse/sync';
 
 export class CaseController {
+  // Função helper para formatar o último movimento
+  private getUltimoAndamento(movimentos: any[]): string | null {
+    if (!movimentos || movimentos.length === 0) return null;
+
+    // Ordena por data decrescente e pega o mais recente
+    const sorted = [...movimentos].sort((a, b) =>
+      new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime()
+    );
+
+    const ultimo = sorted[0];
+    const data = new Date(ultimo.dataHora).toLocaleDateString('pt-BR');
+    return `${ultimo.nome} - ${data}`;
+  }
+
   async create(req: AuthRequest, res: Response) {
     try {
-      const { clientId, processNumber, court, subject, value, notes } = req.body;
+      const { clientId, processNumber, court, subject, value, notes, informarCliente, linkProcesso } = req.body;
       const companyId = req.user!.companyId;
 
       if (!companyId) {
@@ -43,6 +57,11 @@ export class CaseController {
         console.error('Erro ao buscar no DataJud:', error);
       }
 
+      // Formata o último andamento se houver dados do DataJud
+      const ultimoAndamento = datajudData?.movimentos
+        ? this.getUltimoAndamento(datajudData.movimentos)
+        : null;
+
       // Cria o processo
       const caseData = await prisma.case.create({
         data: {
@@ -53,6 +72,9 @@ export class CaseController {
           subject: subject || datajudData?.assuntos?.[0]?.nome || '',
           value,
           notes,
+          ultimoAndamento,
+          informarCliente: informarCliente || false,
+          linkProcesso: linkProcesso || null,
           lastSyncedAt: datajudData ? new Date() : null,
         },
       });
@@ -191,7 +213,7 @@ export class CaseController {
     try {
       const { id } = req.params;
       const companyId = req.user!.companyId;
-      const { court, subject, value, status, notes } = req.body;
+      const { court, subject, value, status, notes, informarCliente, linkProcesso } = req.body;
 
       const caseData = await prisma.case.findFirst({
         where: {
@@ -212,6 +234,8 @@ export class CaseController {
           value,
           status,
           notes,
+          ...(informarCliente !== undefined && { informarCliente }),
+          ...(linkProcesso !== undefined && { linkProcesso }),
         },
       });
 
@@ -267,10 +291,18 @@ export class CaseController {
         });
       }
 
-      // Atualiza a data de sincronização
+      // Formata o último andamento
+      const ultimoAndamento = datajudData.movimentos
+        ? this.getUltimoAndamento(datajudData.movimentos)
+        : null;
+
+      // Atualiza a data de sincronização e o último andamento
       await prisma.case.update({
         where: { id },
-        data: { lastSyncedAt: new Date() },
+        data: {
+          lastSyncedAt: new Date(),
+          ultimoAndamento,
+        },
       });
 
       // Retorna o processo atualizado

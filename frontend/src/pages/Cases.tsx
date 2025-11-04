@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Layout from '../components/Layout';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { Plus, Search, RefreshCw, X, Calendar, User, FileText, Clock, Edit, Trash2, Download, Upload } from 'lucide-react';
+import { Plus, Search, RefreshCw, X, Calendar, User, FileText, Clock, Edit, Trash2, Download, Upload, Eye } from 'lucide-react';
 
 interface Case {
   id: string;
@@ -12,6 +12,9 @@ interface Case {
   status: string;
   value?: number;
   notes?: string;
+  ultimoAndamento?: string;
+  informarCliente?: string;
+  linkProcesso?: string;
   client: {
     id: string;
     name: string;
@@ -56,6 +59,7 @@ const Cases: React.FC = () => {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showAndamentoModal, setShowAndamentoModal] = useState(false);
   const [selectedCase, setSelectedCase] = useState<CaseDetail | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -99,6 +103,8 @@ const Cases: React.FC = () => {
     value: '',
     notes: '',
     status: 'ACTIVE',
+    informarCliente: '',
+    linkProcesso: '',
   });
 
   useEffect(() => {
@@ -210,6 +216,8 @@ const Cases: React.FC = () => {
       value: '',
       notes: '',
       status: 'ACTIVE',
+      informarCliente: '',
+      linkProcesso: '',
     });
     setClientSearchText('');
     setParts([]);
@@ -376,6 +384,8 @@ const Cases: React.FC = () => {
         value: caseDetail.value ? caseDetail.value.toString() : '',
         notes: caseDetail.notes || '',
         status: caseDetail.status || 'ACTIVE',
+        informarCliente: caseDetail.informarCliente || '',
+        linkProcesso: caseDetail.linkProcesso || '',
       });
       setClientSearchText(caseDetail.client.name);
 
@@ -407,6 +417,16 @@ const Cases: React.FC = () => {
       }
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Erro ao excluir processo');
+    }
+  };
+
+  const handleViewAndamento = async (caseItem: Case) => {
+    try {
+      const response = await api.get(`/cases/${caseItem.id}`);
+      setSelectedCase(response.data);
+      setShowAndamentoModal(true);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Erro ao carregar informações');
     }
   };
 
@@ -547,6 +567,15 @@ const Cases: React.FC = () => {
                           >
                             <RefreshCw size={16} />
                           </button>
+                          {caseItem.informarCliente && (
+                            <button
+                              onClick={() => handleViewAndamento(caseItem)}
+                              className="text-purple-600 hover:text-purple-800 transition-colors"
+                              title="Visualizar Andamento para Cliente"
+                            >
+                              <Eye size={16} />
+                            </button>
+                          )}
                           <button
                             onClick={() => handleEdit(caseItem)}
                             className="text-green-600 hover:text-green-800 transition-colors"
@@ -705,6 +734,38 @@ const Cases: React.FC = () => {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Link do Processo</label>
+                <input
+                  type="url"
+                  value={formData.linkProcesso}
+                  onChange={(e) => setFormData({ ...formData, linkProcesso: e.target.value })}
+                  placeholder="https://www.tjrj.jus.br/..."
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                <p className="mt-1 text-xs text-gray-500">URL do processo no site do tribunal</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Informar Andamento ao Cliente</label>
+                <textarea
+                  value={formData.informarCliente}
+                  onChange={(e) => setFormData({ ...formData, informarCliente: e.target.value })}
+                  rows={3}
+                  placeholder="Digite aqui o texto explicativo do andamento que será informado ao cliente..."
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                <p className="mt-1 text-xs text-gray-500">Este texto será exibido ao visualizar o andamento para o cliente</p>
+              </div>
+
+              {selectedCase && selectedCase.ultimoAndamento && (
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                  <label className="block text-sm font-medium text-blue-900">Último Andamento (via API)</label>
+                  <p className="mt-1 text-sm text-blue-700">{selectedCase.ultimoAndamento}</p>
+                  <p className="mt-1 text-xs text-blue-600">Atualizado automaticamente ao sincronizar com DataJud</p>
+                </div>
+              )}
 
               {/* Adicionar Partes */}
               <div className="border-t border-gray-200 pt-4">
@@ -1434,6 +1495,85 @@ const Cases: React.FC = () => {
               >
                 Fechar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Visualização do Andamento para Cliente */}
+      {showAndamentoModal && selectedCase && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4 pb-4 border-b">
+                <h2 className="text-2xl font-bold text-gray-900">Andamento para Cliente</h2>
+                <button
+                  onClick={() => setShowAndamentoModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-1">Processo</h3>
+                  <p className="text-lg font-semibold text-gray-900">{selectedCase.processNumber}</p>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-1">Cliente</h3>
+                  <p className="text-gray-900">{selectedCase.client.name}</p>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-1">Assunto</h3>
+                  <p className="text-gray-900">{selectedCase.subject}</p>
+                </div>
+
+                {selectedCase.ultimoAndamento && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                    <h3 className="text-sm font-medium text-blue-900 mb-1">Último Andamento (DataJud)</h3>
+                    <p className="text-blue-700">{selectedCase.ultimoAndamento}</p>
+                  </div>
+                )}
+
+                {selectedCase.informarCliente ? (
+                  <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                    <h3 className="text-sm font-medium text-green-900 mb-2">Informação para o Cliente</h3>
+                    <div className="text-green-800 whitespace-pre-wrap">{selectedCase.informarCliente}</div>
+                  </div>
+                ) : (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                    <p className="text-yellow-800 text-center">
+                      Nenhuma informação de andamento registrada para este cliente.
+                    </p>
+                  </div>
+                )}
+
+                {selectedCase.linkProcesso && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                    <h3 className="text-sm font-medium text-gray-700 mb-1">Link do Processo</h3>
+                    <a
+                      href={selectedCase.linkProcesso}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 hover:underline break-all"
+                    >
+                      {selectedCase.linkProcesso}
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowAndamentoModal(false)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
           </div>
         </div>

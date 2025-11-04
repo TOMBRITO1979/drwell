@@ -124,6 +124,9 @@ model Case {
   value             Float?     // Valor da causa
   status            CaseStatus @default(ACTIVE)
   notes             String?
+  ultimoAndamento   String?    // Último movimento do processo (atualizado via API)
+  informarCliente   String?    // Texto explicativo do andamento para informar ao cliente
+  linkProcesso      String?    // Link/URL do processo no tribunal
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   lastSyncedAt      DateTime?  // Última sincronização com DataJud
