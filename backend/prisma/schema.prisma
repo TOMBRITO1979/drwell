@@ -41,17 +41,20 @@ enum UserRole {
 
 // Tabela de usuários
 model User {
-  id                String    @id @default(uuid())
-  companyId         String?
-  name              String
-  email             String    @unique
-  password          String
-  role              UserRole  @default(USER)
-  active            Boolean   @default(true)
-  resetToken        String?
-  resetTokenExpiry  DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                        String    @id @default(uuid())
+  companyId                 String?
+  name                      String
+  email                     String    @unique
+  password                  String
+  role                      UserRole  @default(USER)
+  active                    Boolean   @default(true)
+  emailVerified             Boolean   @default(false)
+  emailVerificationToken    String?
+  emailVerificationExpiry   DateTime?
+  resetToken                String?
+  resetTokenExpiry          DateTime?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
 
   company           Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   permissions       Permission[]

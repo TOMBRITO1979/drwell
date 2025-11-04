@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import prisma from '../utils/prisma';
+import { uploadToS3 } from '../utils/s3';
 
 // Listar documentos com filtros e paginação
 export const listDocuments = async (req: AuthRequest, res: Response) => {
@@ -384,5 +385,133 @@ export const searchDocuments = async (req: AuthRequest, res: Response) => {
   } catch (error: any) {
     console.error('Erro ao buscar documentos:', error);
     res.status(500).json({ error: 'Erro ao buscar documentos' });
+  }
+};
+
+// Upload de arquivo para S3
+export const uploadDocument = async (req: AuthRequest, res: Response) => {
+  try {
+    const file = req.file;
+    
+    if (!file) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+    }
+
+    const {
+      caseId,
+      clientId,
+      name,
+      description,
+    } = req.body;
+
+    const companyId = req.user!.companyId!;
+    const uploadedBy = req.user!.userId;
+
+    // Validações
+    if (!name) {
+      return res.status(400).json({ error: 'Nome do documento é obrigatório' });
+    }
+
+    // Deve ter caseId OU clientId
+    if (!caseId && !clientId) {
+      return res.status(400).json({ error: 'É necessário informar um cliente ou processo' });
+    }
+
+    if (caseId && clientId) {
+      return res.status(400).json({ error: 'Informe apenas um: cliente ou processo' });
+    }
+
+    // Verificar se cliente/processo pertencem à empresa do usuário
+    if (clientId) {
+      const client = await prisma.client.findFirst({
+        where: { id: clientId, companyId },
+      });
+      if (!client) {
+        return res.status(404).json({ error: 'Cliente não encontrado' });
+      }
+    }
+
+    if (caseId) {
+      const caseRecord = await prisma.case.findFirst({
+        where: { id: caseId, companyId },
+      });
+      if (!caseRecord) {
+        return res.status(404).json({ error: 'Processo não encontrado' });
+      }
+    }
+
+    // Buscar email do admin da empresa para criar pasta no S3
+    const adminUser = await prisma.user.findFirst({
+      where: {
+        companyId,
+        role: 'ADMIN',
+      },
+      select: {
+        email: true,
+      },
+      orderBy: {
+        createdAt: 'asc', // Pega o primeiro admin (criador da empresa)
+      },
+    });
+
+    if (!adminUser) {
+      return res.status(500).json({ error: 'Admin da empresa não encontrado' });
+    }
+
+    // Upload para S3 usando email do admin como pasta
+    console.log(`📤 Fazendo upload de arquivo: ${file.originalname} (${file.size} bytes)`);
+    console.log(`📁 Pasta no S3: ${adminUser.email}/documents/`);
+    const { key, url } = await uploadToS3(file, adminUser.email);
+    console.log(`✅ Arquivo enviado para S3: ${key}`);
+
+    // Criar registro no banco
+    const document = await prisma.document.create({
+      data: {
+        companyId,
+        caseId: caseId || null,
+        clientId: clientId || null,
+        name,
+        description: description || null,
+        storageType: 'upload',
+        fileUrl: url,
+        fileKey: key,
+        fileSize: file.size,
+        fileType: file.mimetype,
+        externalUrl: null,
+        externalType: null,
+        uploadedBy,
+      },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            cpf: true,
+          },
+        },
+        case: {
+          select: {
+            id: true,
+            processNumber: true,
+            subject: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    console.log(`📄 Documento criado no banco: ${document.id}`);
+
+    res.status(201).json(document);
+  } catch (error: any) {
+    console.error('❌ Erro ao fazer upload de documento:', error);
+    console.error('Stack:', error.stack);
+    res.status(500).json({ error: 'Erro ao fazer upload do documento' });
   }
 };

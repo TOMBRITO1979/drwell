@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../utils/prisma';
 import { generateToken, generateResetToken } from '../utils/jwt';
-import { sendPasswordResetEmail, sendWelcomeEmail } from '../utils/email';
+import { sendPasswordResetEmail, sendWelcomeEmail, sendEmailVerification } from '../utils/email';
 import { AuthRequest } from '../middleware/auth';
 
 export class AuthController {
@@ -22,6 +22,10 @@ export class AuthController {
       // Hash da senha
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      // Gera token de verificação de email (válido por 24 horas)
+      const emailVerificationToken = generateResetToken();
+      const emailVerificationExpiry = new Date(Date.now() + 86400000); // 24 horas
+
       // Cria a empresa e o usuário admin em uma transação
       const result = await prisma.$transaction(async (tx) => {
         const company = await tx.company.create({
@@ -39,34 +43,34 @@ export class AuthController {
             password: hashedPassword,
             role: 'ADMIN',
             companyId: company.id,
+            emailVerified: false,
+            emailVerificationToken,
+            emailVerificationExpiry,
           },
         });
 
         return { company, user };
       });
 
-      // Envia email de boas-vindas
+      // Envia email de verificação
       try {
-        await sendWelcomeEmail(email, name);
-      } catch (error) {
-        console.error('Erro ao enviar email:', error);
+        console.log(`📧 Enviando email de verificação para: ${email}`);
+        await sendEmailVerification(email, name, emailVerificationToken);
+        console.log(`✅ Email de verificação enviado com sucesso para: ${email}`);
+      } catch (error: any) {
+        console.error('❌ Erro ao enviar email de verificação:', error);
+        console.error('Detalhes do erro:', error.message, error.stack);
       }
 
-      const token = generateToken({
-        userId: result.user.id,
-        email: result.user.email,
-        role: result.user.role,
-        companyId: result.user.companyId!,
-      });
-
       res.status(201).json({
-        token,
+        message: 'Cadastro realizado com sucesso! Por favor, verifique seu email para ativar sua conta.',
         user: {
           id: result.user.id,
           name: result.user.name,
           email: result.user.email,
           role: result.user.role,
           companyId: result.user.companyId,
+          emailVerified: false,
         },
       });
     } catch (error) {
@@ -90,6 +94,13 @@ export class AuthController {
 
       if (!user.active) {
         return res.status(401).json({ error: 'Usuário inativo' });
+      }
+
+      if (!user.emailVerified) {
+        return res.status(401).json({
+          error: 'Email não verificado',
+          message: 'Por favor, verifique seu email antes de fazer login. Verifique sua caixa de entrada e spam.'
+        });
       }
 
       if (user.company && !user.company.active) {
@@ -150,7 +161,9 @@ export class AuthController {
         },
       });
 
+      console.log(`📧 Enviando email de reset de senha para: ${email}`);
       await sendPasswordResetEmail(email, resetToken);
+      console.log(`✅ Email de reset de senha enviado com sucesso para: ${email}`);
 
       res.json({ message: 'Se o email existir, um link de redefinição foi enviado' });
     } catch (error) {
@@ -222,6 +235,95 @@ export class AuthController {
     } catch (error) {
       console.error('Erro ao buscar usuário:', error);
       res.status(500).json({ error: 'Erro ao buscar dados do usuário' });
+    }
+  }
+
+  async verifyEmail(req: Request, res: Response) {
+    try {
+      const { token } = req.body;
+
+      if (!token) {
+        return res.status(400).json({ error: 'Token não fornecido' });
+      }
+
+      const user = await prisma.user.findFirst({
+        where: {
+          emailVerificationToken: token,
+          emailVerificationExpiry: {
+            gt: new Date(),
+          },
+        },
+      });
+
+      if (!user) {
+        return res.status(400).json({
+          error: 'Token inválido ou expirado',
+          message: 'O link de verificação é inválido ou expirou. Por favor, solicite um novo link.'
+        });
+      }
+
+      // Verifica o email do usuário
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: true,
+          emailVerificationToken: null,
+          emailVerificationExpiry: null,
+        },
+      });
+
+      // Envia email de boas-vindas após verificação
+      try {
+        await sendWelcomeEmail(user.email, user.name);
+      } catch (error) {
+        console.error('Erro ao enviar email de boas-vindas:', error);
+      }
+
+      res.json({
+        message: 'Email verificado com sucesso! Você já pode fazer login no sistema.',
+        success: true
+      });
+    } catch (error) {
+      console.error('Erro ao verificar email:', error);
+      res.status(500).json({ error: 'Erro ao verificar email' });
+    }
+  }
+
+  async resendVerificationEmail(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user) {
+        // Por segurança, não revela se o email existe
+        return res.json({ message: 'Se o email existir e não estiver verificado, um novo link foi enviado' });
+      }
+
+      if (user.emailVerified) {
+        return res.status(400).json({ error: 'Este email já foi verificado' });
+      }
+
+      // Gera novo token de verificação
+      const emailVerificationToken = generateResetToken();
+      const emailVerificationExpiry = new Date(Date.now() + 86400000); // 24 horas
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerificationToken,
+          emailVerificationExpiry,
+        },
+      });
+
+      await sendEmailVerification(email, user.name, emailVerificationToken);
+
+      res.json({ message: 'Se o email existir e não estiver verificado, um novo link foi enviado' });
+    } catch (error) {
+      console.error('Erro ao reenviar email:', error);
+      res.status(500).json({ error: 'Erro ao processar solicitação' });
     }
   }
 }

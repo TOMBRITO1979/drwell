@@ -13,11 +13,26 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
 - Backend API: https://api.advwell.pro
 
 **Current Versions:**
-- Backend: v16-sync-fix (Synchronization Error Fixed)
-- Frontend: v13-text-andamento (informarCliente Text Field + View Modal)
+- Backend: v20-email-folders (deployed)
+- Frontend: v13-text-andamento (deployed)
 - Database: PostgreSQL 16 with complete schema for multitenant law firm management
 
-**Latest Updates (04/11/2025 03:15 UTC):**
+**Note**: Check `docker-compose.yml` for deployed versions. Latest development may be ahead of deployed versions.
+
+**Latest Updates (04/11/2025 22:37 UTC):**
+- ✅ **S3 Email-Based Folder Structure** - MAJOR IMPROVEMENT for document organization
+  - **Problem Fixed:** Files were organized by company UUID, hard to identify in S3 console
+  - **Before:** `company-09fb2517-f437-4abb-870f-6cd294e3c93b/documents/file.pdf`
+  - **After:** `admin-at-company.com/documents/file.pdf`
+  - **Implementation:** Email sanitization function converts admin email to safe folder name
+  - **Technical:** `backend/src/utils/s3.ts:8-15` sanitization, `document.controller.ts:444-455` admin lookup
+  - **Protection:** Admin email cannot be modified (existing user controller protection)
+  - **Benefits:** Visual organization like "waha" system, easy to identify companies in S3
+  - **Testing:** ✅ Automated test passed, ✅ Production upload successful
+- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251104_223732_v20_email_s3_structure/` (1.0GB)
+- ✅ **DockerHub Updated** - Image pushed: `tomautomations/advwell-backend:v20-email-folders`
+
+**Previous Updates (04/11/2025 03:15 UTC):**
 - ✅ **CRITICAL BUG FIX - Synchronization Error** - Fixed TypeError in syncMovements
   - **Problem:** `TypeError: Cannot read properties of undefined (reading 'getUltimoAndamento')`
   - **Root Cause:** Method `getUltimoAndamento` was a private class method, losing `this` context when called
@@ -152,8 +167,8 @@ npm run preview                # Preview production build
 # Database verification
 ./check_database.sh            # Quick database check
 ./check_complete_database.sh   # Complete database inspection
-./verify_data.sh               # Verify data integrity
-./verify_all_users.sh          # Check all users in database
+./verify_data.sh               # Verify data integrity (if exists)
+./verify_all_users.sh          # Check all users in database (if exists)
 
 # Service logs and monitoring
 ./check_logs.sh                # Backend logs
@@ -162,18 +177,33 @@ npm run preview                # Preview production build
 ./check_new_logs.sh            # Recent logs only
 ./check_services.sh            # Service status
 
-# Data management
+# API and feature testing
+node test_api.js               # Test API endpoints
+node test_api_complete.js      # Comprehensive API testing
+node test_login.js             # Test authentication
+node test_all_logins.js        # Test multiple user logins
+node test_backend.js           # Backend functionality tests
+node test_case_parts.js        # Case parts CRUD testing
+node test_users_management.js  # User management testing
+node test_sync_ultimo_andamento.js  # DataJud sync testing
+./test_complete_flow.sh        # End-to-end flow test
+./test_sync_fix.sh             # Test synchronization fix
+./test_api_informar_cliente.sh # Test informarCliente field
+
+# Data creation and seeding
 node create_test_data.js       # Create test data
 node create_complete_data.js   # Create complete dataset
-node test_api.js               # Test API endpoints
-node test_login.js             # Test authentication
-./test_complete_flow.sh        # End-to-end flow test
+node create_admin_user.js      # Create admin user
+node create_superadmin.js      # Create super admin
+node adicionar_partes_processo.js  # Add case parts
 
 # User management scripts
 ./update_to_superadmin.sh      # Promote user to SUPER_ADMIN
 ./fix_pedro_role.sh            # Fix specific user roles
+node fix_master_user.js        # Fix master user account
+node update_master_password.js # Update master user password
 
-# Backup
+# Backup and restore
 ./criar_backup.sh              # Create complete system backup
 ```
 
@@ -183,6 +213,10 @@ node test_login.js             # Test authentication
 docker stack deploy -c docker-compose.yml advtom  # Manual deployment
 docker stack ps advtom         # Check service status
 docker service logs advtom_backend -f   # View backend logs
+
+# Update specific service to new image version
+docker service update --image tomautomations/advwell-backend:NEW_VERSION advtom_backend
+docker service update --image tomautomations/advwell-frontend:NEW_VERSION advtom_frontend
 ```
 
 ## Architecture
@@ -271,10 +305,16 @@ Routes are protected by `authenticateToken` and `validateTenant` middlewares.
 ### File Uploads
 
 Documents are stored in AWS S3 (backend/src/utils/s3.ts):
-- Upload handled via multer middleware
-- Files stored with company/case hierarchy
-- Presigned URLs for secure access
-- Metadata stored in `CaseDocument` table
+- **Upload handling:** multer middleware with memory storage
+- **Folder structure (v20+):** `{admin-email-sanitized}/documents/{uuid}.{ext}`
+  - Example: `admin-at-company.com/documents/f62c06d9-4231-43cd-bdc8-4c89c365e5f7.pdf`
+  - Admin email fetched from first ADMIN user (company creator)
+  - Email sanitized: `@` → `-at-`, special chars removed, lowercase
+- **Legacy structure (v19 and earlier):** `company-{uuid}/documents/` (still accessible)
+- **Storage:** Presigned URLs for secure access
+- **Metadata:** Stored in `Document` table with fileKey, fileUrl, fileSize, fileType
+- **File types:** PDF, Word, Excel, PowerPoint, images, compressed files (50MB limit)
+- **Admin protection:** Admin email cannot be modified (user.controller.ts:154-157)
 
 ### Financial Module
 
@@ -1008,20 +1048,21 @@ docker exec $(docker ps -q -f name=advtom_postgres) pg_dump -U postgres advtom >
 
 #### Complete System Backup (RECOMMENDED)
 
-**Latest Backup:** `/root/advtom/backups/20251104_031522_v16_sync_fix/` ✅ **CURRENT**
-- ✅ PostgreSQL database dump (96KB)
-- ✅ Backend source code v16-sync-fix with getUltimoAndamento fix (100M)
+**Latest Backup:** `/root/advtom/backups/20251104_223732_v20_email_s3_structure/` ✅ **CURRENT**
+- ✅ PostgreSQL database dump (108KB)
+- ✅ Backend source code v20-email-folders with email-based S3 structure (100M)
 - ✅ Frontend source code v13-text-andamento (25M)
 - ✅ Docker images (frontend: 53M, backend: 836M)
-- ✅ docker-compose.yml with advwell.pro URLs and v16/v13 images
-- ✅ Updated CLAUDE.md and BACKUP_INFO.md with detailed fix documentation
+- ✅ docker-compose.yml with advwell.pro URLs and v20/v13 images
+- ✅ Updated CLAUDE.md and BACKUP_INFO.md with detailed implementation documentation
 - ✅ Automated restore script included
-- **Date:** 04/11/2025 03:15 UTC
+- **Date:** 04/11/2025 22:37 UTC
 - **Total Size:** 1013M (1.0GB)
-- **Fix:** Synchronization error corrected - getUltimoAndamento context issue
-- **Status:** 100% Functional - Sync errors eliminated
+- **Feature:** Email-based S3 folder structure for visual organization
+- **Status:** 100% Functional - Production tested with real uploads
 
 **Previous Backups:**
+- `/root/advtom/backups/20251104_031522_v16_sync_fix/` - Synchronization Error Fix (04/11/2025 03:15 UTC)
 - `/root/advtom/backups/20251104_030045_v15_text_andamento/` - informarCliente Text Field (04/11/2025 03:00 UTC)
 - `/root/advtom/backups/20251103_210053_v13_multi_grade_sync/` - DataJud Multi-Grade Sync (03/11/2025 21:00 UTC)
 - `/root/advtom/backups/20251103_022005_v6_collapsible_sidebar/` - Collapsible Sidebar (03/11/2025 02:20 UTC)
@@ -1224,23 +1265,35 @@ docker service logs advtom_postgres -f
 1. Make changes to code
 2. Test locally
 3. Commit changes (if using version control)
-4. Build Docker images:
+4. Build Docker images with new version tag:
    ```bash
-   docker build -t tomautomations/advwell-backend:v1-advwell backend/
+   # Use semantic versioning: v{number}-{feature-name}
+   docker build -t tomautomations/advwell-backend:v17-new-feature backend/
    docker build --build-arg VITE_API_URL=https://api.advwell.pro/api \
-     -t tomautomations/advwell-frontend:v1-advwell frontend/
+     -t tomautomations/advwell-frontend:v14-new-feature frontend/
    ```
 5. Push images to DockerHub:
    ```bash
-   docker push tomautomations/advwell-backend:v1-advwell
-   docker push tomautomations/advwell-frontend:v1-advwell
+   docker push tomautomations/advwell-backend:v17-new-feature
+   docker push tomautomations/advwell-frontend:v14-new-feature
    ```
-6. Deploy: `./deploy_expect.sh` or manually via `docker stack deploy`
-7. Verify: Check logs and test endpoints:
+6. **Update docker-compose.yml** with new image versions:
+   ```yaml
+   backend:
+     image: tomautomations/advwell-backend:v17-new-feature
+   frontend:
+     image: tomautomations/advwell-frontend:v14-new-feature
+   ```
+7. Create backup before deploying: `./criar_backup.sh`
+8. Deploy: `./deploy_expect.sh` or manually via `docker stack deploy`
+9. Verify: Check logs and test endpoints:
    ```bash
    curl -k https://api.advwell.pro/health
    docker service logs advtom_backend -f
    ```
+10. Update CLAUDE.md "Current Versions" section with deployed versions
+
+**Important**: Always update docker-compose.yml with the new image versions and commit it. This ensures the file reflects what's actually deployed.
 
 ### Key Files to Modify
 
@@ -1288,3 +1341,68 @@ docker service logs advtom_postgres -f
 - **Production**: `docker-compose.yml` - All environment variables and service configs
 - **Backend dev**: `backend/.env` (create from environment variables in docker-compose.yml)
 - **Frontend dev**: `frontend/.env` (set VITE_API_URL=http://localhost:3000/api)
+
+## Quick Reference
+
+### Version Control and Git
+The repository has untracked test files visible in git status:
+- `backend/test_informar_cliente_text.js` - Test script for informarCliente field
+- `test_api_informar_cliente.sh` - Shell test for informarCliente API
+- `test_sync_fix.sh` - Test script for sync fix verification
+
+These are test files that can be safely committed or added to `.gitignore` if desired.
+
+### Quick Diagnostics
+```bash
+# Check if system is healthy
+curl -k https://api.advwell.pro/health
+
+# Check running services
+docker stack ps advtom
+
+# Quick log check for errors
+docker service logs advtom_backend --tail 50 | grep -i error
+
+# Verify database connection
+docker exec $(docker ps -q -f name=advtom_backend) npx prisma db pull
+
+# Check current deployed versions
+docker service inspect advtom_backend --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'
+docker service inspect advtom_frontend --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'
+```
+
+### Common Code Patterns
+
+**Backend Controller Pattern:**
+```typescript
+import { Request, Response } from 'express';
+import { AuthRequest } from '../types';
+import prisma from '../utils/prisma';
+
+export const getItems = async (req: AuthRequest, res: Response) => {
+  try {
+    const items = await prisma.item.findMany({
+      where: { companyId: req.user.companyId }  // Always filter by tenant
+    });
+    res.json(items);
+  } catch (error) {
+    console.error('Error fetching items:', error);
+    res.status(500).json({ error: 'Failed to fetch items' });
+  }
+};
+```
+
+**Frontend API Call Pattern:**
+```typescript
+import api from '../services/api';
+
+const fetchItems = async () => {
+  try {
+    const response = await api.get('/items');
+    setItems(response.data);
+  } catch (error) {
+    toast.error('Failed to fetch items');
+    console.error(error);
+  }
+};
+```

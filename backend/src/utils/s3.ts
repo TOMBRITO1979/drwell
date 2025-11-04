@@ -3,6 +3,17 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { config } from '../config';
 import crypto from 'crypto';
 
+// Sanitiza email para usar como nome de pasta no S3
+// Remove caracteres especiais e substitui @ por -at-
+export const sanitizeEmailForS3 = (email: string): string => {
+  return email
+    .toLowerCase()
+    .replace(/@/g, '-at-')
+    .replace(/[^a-z0-9.-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+};
+
 const s3Client = new S3Client({
   region: config.aws.region,
   credentials: {
@@ -13,11 +24,14 @@ const s3Client = new S3Client({
 
 export const uploadToS3 = async (
   file: Express.Multer.File,
-  folder: string = 'documents'
+  adminEmail: string
 ): Promise<{ key: string; url: string }> => {
+  // Sanitiza o email para criar pasta segura
+  const sanitizedEmail = sanitizeEmailForS3(adminEmail);
+
   const fileExtension = file.originalname.split('.').pop();
   const fileName = `${crypto.randomUUID()}.${fileExtension}`;
-  const key = `${folder}/${fileName}`;
+  const key = `${sanitizedEmail}/documents/${fileName}`;
 
   const command = new PutObjectCommand({
     Bucket: config.aws.s3BucketName,

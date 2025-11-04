@@ -16,6 +16,9 @@ build/
 
 # Production config with real credentials
 docker-compose.prod.yml
+docker-compose.yml
+# IMPORTANT: docker-compose.yml contains production credentials
+# Use docker-compose.example.yml as template
 
 # Logs
 *.log
@@ -55,7 +58,10 @@ volumes/
 
 # Test files
 /test_*.js
+/test_*.sh
 /tmp/
+/create_test_*.sh
+/teste_*.txt
 
 # Prisma
 backend/prisma/migrations/

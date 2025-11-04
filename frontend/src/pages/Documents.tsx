@@ -63,6 +63,7 @@ const Documents: React.FC = () => {
     externalUrl: '',
     externalType: 'google_drive' as 'google_drive' | 'google_docs' | 'minio' | 'other',
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Load clients and cases
   useEffect(() => {
@@ -168,9 +169,8 @@ const Documents: React.FC = () => {
       return;
     }
 
-    if (formData.storageType === 'upload') {
-      // TODO: Implement file upload to S3
-      toast.error('Upload de arquivo ainda não implementado. Use link externo por enquanto.');
+    if (formData.storageType === 'upload' && !selectedFile) {
+      toast.error('Selecione um arquivo para upload');
       return;
     }
 
@@ -179,15 +179,41 @@ const Documents: React.FC = () => {
       return;
     }
 
-    try {
-      const payload = {
-        ...formData,
-        clientId: selectedClient?.id,
-        caseId: selectedCase?.id,
-      };
+    setLoading(true);
 
-      await api.post('/documents', payload);
-      toast.success('Documento adicionado com sucesso!');
+    try {
+      if (formData.storageType === 'upload' && selectedFile) {
+        // Upload de arquivo para S3
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', selectedFile);
+        uploadFormData.append('name', formData.name);
+        uploadFormData.append('description', formData.description);
+
+        if (selectedClient?.id) {
+          uploadFormData.append('clientId', selectedClient.id);
+        }
+        if (selectedCase?.id) {
+          uploadFormData.append('caseId', selectedCase.id);
+        }
+
+        await api.post('/documents/upload', uploadFormData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        toast.success('Arquivo enviado com sucesso!');
+      } else {
+        // Link externo
+        const payload = {
+          ...formData,
+          clientId: selectedClient?.id,
+          caseId: selectedCase?.id,
+        };
+
+        await api.post('/documents', payload);
+        toast.success('Documento adicionado com sucesso!');
+      }
+
       setShowAddModal(false);
       resetForm();
 
@@ -197,6 +223,8 @@ const Documents: React.FC = () => {
       }
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Erro ao adicionar documento');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -229,6 +257,7 @@ const Documents: React.FC = () => {
       externalUrl: '',
       externalType: 'google_drive',
     });
+    setSelectedFile(null);
   };
 
   const formatFileSize = (bytes?: number) => {
@@ -598,12 +627,35 @@ const Documents: React.FC = () => {
                   </>
                 )}
 
-                {/* Upload Fields (placeholder) */}
+                {/* Upload Fields */}
                 {formData.storageType === 'upload' && (
-                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                    <p className="text-yellow-800">
-                      Upload de arquivo ainda não implementado. Por favor, use a opção de Link
-                      Externo.
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Selecionar Arquivo *
+                    </label>
+                    <input
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setSelectedFile(file);
+                          // Auto-fill name if empty
+                          if (!formData.name) {
+                            setFormData({ ...formData, name: file.name });
+                          }
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.gif,.webp,.zip,.rar"
+                    />
+                    {selectedFile && (
+                      <p className="mt-2 text-sm text-gray-600">
+                        Arquivo selecionado: <span className="font-medium">{selectedFile.name}</span>
+                        {' '}({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs text-gray-500">
+                      Tamanho máximo: 50MB. Formatos aceitos: PDF, Word, Excel, PowerPoint, imagens, arquivos compactados.
                     </p>
                   </div>
                 )}
@@ -623,10 +675,10 @@ const Documents: React.FC = () => {
               </button>
               <button
                 onClick={handleSaveDocument}
-                disabled={formData.storageType === 'upload'}
+                disabled={loading}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                Salvar Documento
+                {loading ? 'Enviando...' : 'Salvar Documento'}
               </button>
             </div>
           </div>

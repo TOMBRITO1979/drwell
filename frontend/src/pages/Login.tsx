@@ -19,7 +19,14 @@ const Login: React.FC = () => {
       toast.success('Login realizado com sucesso!');
       navigate('/dashboard');
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Erro ao fazer login');
+      const errorData = error.response?.data;
+
+      // Trata erro de email não verificado
+      if (errorData?.error === 'Email não verificado') {
+        toast.error(errorData.message || 'Email não verificado');
+      } else {
+        toast.error(errorData?.error || 'Erro ao fazer login');
+      }
     } finally {
       setLoading(false);
     }
@@ -80,11 +87,17 @@ const Login: React.FC = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-2">
           <p className="text-sm text-gray-600">
             Não tem uma conta?{' '}
             <Link to="/register" className="text-blue-600 hover:text-blue-500 font-medium">
               Cadastre-se
+            </Link>
+          </p>
+          <p className="text-xs text-gray-500">
+            Não recebeu o email de verificação?{' '}
+            <Link to="/resend-verification" className="text-blue-600 hover:text-blue-500 font-medium">
+              Reenviar
             </Link>
           </p>
         </div>

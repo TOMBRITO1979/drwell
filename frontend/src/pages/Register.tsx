@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { Mail, CheckCircle } from 'lucide-react';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,8 @@ const Register: React.FC = () => {
     cnpj: '',
   });
   const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   const navigate = useNavigate();
   const { register } = useAuth();
 
@@ -46,14 +49,67 @@ const Register: React.FC = () => {
         companyName: formData.companyName,
         cnpj: formData.cnpj || undefined,
       });
-      toast.success('Cadastro realizado com sucesso!');
-      navigate('/dashboard');
+      setUserEmail(formData.email);
+      setRegistered(true);
+      toast.success('Cadastro realizado! Verifique seu email.');
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Erro ao fazer cadastro');
     } finally {
       setLoading(false);
     }
   };
+
+  // Tela de sucesso após registro
+  if (registered) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4 py-12">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Cadastro Realizado!
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Enviamos um email de verificação para:
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <Mail className="w-5 h-5 text-blue-600 inline mr-2" />
+              <span className="font-semibold text-blue-900">{userEmail}</span>
+            </div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-left">
+              <p className="text-sm text-yellow-800 mb-2">
+                <strong>Próximos passos:</strong>
+              </p>
+              <ol className="text-sm text-yellow-800 space-y-1 list-decimal list-inside">
+                <li>Verifique sua caixa de entrada</li>
+                <li>Clique no link de verificação</li>
+                <li>Faça login no sistema</li>
+              </ol>
+            </div>
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate('/login')}
+                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Ir para Login
+              </button>
+              <button
+                onClick={() => navigate('/resend-verification')}
+                className="w-full px-4 py-2 text-blue-600 hover:text-blue-700 transition-colors text-sm"
+              >
+                Não recebeu o email? Reenviar
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-6">
+              Dica: Verifique também sua caixa de spam
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4 py-12">
