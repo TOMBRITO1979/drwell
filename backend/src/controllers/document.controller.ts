@@ -444,7 +444,7 @@ export const uploadDocument = async (req: AuthRequest, res: Response) => {
     const adminUser = await prisma.user.findFirst({
       where: {
         companyId,
-        role: 'ADMIN',
+        role: { in: ['ADMIN', 'SUPER_ADMIN'] },
       },
       select: {
         email: true,

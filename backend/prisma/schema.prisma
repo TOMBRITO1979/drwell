@@ -133,6 +133,7 @@ model Case {
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   lastSyncedAt      DateTime?  // Última sincronização com DataJud
+  lastAcknowledgedAt DateTime? // Última vez que o advogado marcou como "ciente" das atualizações
 
   company               Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
   client                Client                @relation(fields: [clientId], references: [id], onDelete: Cascade)

@@ -511,6 +511,114 @@ export class CaseController {
       res.status(500).json({ error: 'Erro ao importar processos' });
     }
   }
+
+  // Lista processos com atualizações pendentes (não reconhecidas pelo advogado)
+  async getPendingUpdates(req: AuthRequest, res: Response) {
+    try {
+      const companyId = req.user!.companyId;
+
+      if (!companyId) {
+        return res.status(403).json({ error: 'Usuário não possui empresa associada' });
+      }
+
+      // Busca processos onde:
+      // 1. lastSyncedAt não é null (foi sincronizado)
+      // 2. lastAcknowledgedAt é null OU lastSyncedAt > lastAcknowledgedAt
+      const pendingUpdates = await prisma.case.findMany({
+        where: {
+          companyId,
+          lastSyncedAt: { not: null },
+          OR: [
+            { lastAcknowledgedAt: null },
+            {
+              AND: [
+                { lastSyncedAt: { not: null } },
+                { lastAcknowledgedAt: { not: null } },
+              ],
+            },
+          ],
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              cpf: true,
+            },
+          },
+          movements: {
+            orderBy: {
+              movementDate: 'desc',
+            },
+            take: 1, // Pega apenas o último movimento
+          },
+        },
+        orderBy: {
+          lastSyncedAt: 'desc', // Mais recentes primeiro
+        },
+      });
+
+      // Filtra apenas os que realmente têm atualização pendente
+      const filtered = pendingUpdates.filter(c => {
+        if (!c.lastAcknowledgedAt) return true;
+        if (!c.lastSyncedAt) return false;
+        return c.lastSyncedAt > c.lastAcknowledgedAt;
+      });
+
+      res.json(filtered);
+    } catch (error) {
+      console.error('Erro ao buscar atualizações pendentes:', error);
+      res.status(500).json({ error: 'Erro ao buscar atualizações pendentes' });
+    }
+  }
+
+  // Marca um processo como "ciente" (advogado reconheceu a atualização)
+  async acknowledgeUpdate(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const companyId = req.user!.companyId;
+
+      if (!companyId) {
+        return res.status(403).json({ error: 'Usuário não possui empresa associada' });
+      }
+
+      // Verifica se o processo existe e pertence à empresa
+      const existingCase = await prisma.case.findFirst({
+        where: {
+          id,
+          companyId,
+        },
+      });
+
+      if (!existingCase) {
+        return res.status(404).json({ error: 'Processo não encontrado' });
+      }
+
+      // Atualiza o lastAcknowledgedAt para agora
+      const updatedCase = await prisma.case.update({
+        where: { id },
+        data: {
+          lastAcknowledgedAt: new Date(),
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      res.json({
+        message: 'Atualização reconhecida com sucesso',
+        case: updatedCase,
+      });
+    } catch (error) {
+      console.error('Erro ao reconhecer atualização:', error);
+      res.status(500).json({ error: 'Erro ao reconhecer atualização' });
+    }
+  }
 }
 
 export default new CaseController();

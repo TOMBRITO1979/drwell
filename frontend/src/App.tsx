@@ -11,6 +11,7 @@ import ResendVerification from './pages/ResendVerification';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
 import Cases from './pages/Cases';
+import Updates from './pages/Updates';
 import Financial from './pages/Financial';
 import Documents from './pages/Documents';
 import Settings from './pages/Settings';
@@ -24,7 +25,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Carregando...</p>
         </div>
       </div>
@@ -72,6 +73,14 @@ function App() {
           element={
             <PrivateRoute>
               <Cases />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/updates"
+          element={
+            <PrivateRoute>
+              <Updates />
             </PrivateRoute>
           }
         />

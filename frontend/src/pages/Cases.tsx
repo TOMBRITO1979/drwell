@@ -490,7 +490,7 @@ const Cases: React.FC = () => {
             </button>
             <button
               onClick={handleNewCase}
-              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-blue-600 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-blue-700 transition-colors text-xs sm:text-base"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-green-600 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-green-700 transition-colors text-xs sm:text-base"
             >
               <Plus size={16} className="sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Novo Processo</span>
@@ -507,7 +507,7 @@ const Cases: React.FC = () => {
               placeholder="Buscar processos..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -543,7 +543,7 @@ const Cases: React.FC = () => {
                       <td className="px-4 py-3 text-sm">
                         <button
                           onClick={() => handleCaseClick(caseItem.id)}
-                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                          className="text-green-600 hover:text-green-800 hover:underline font-medium"
                           title="Ver detalhes do processo"
                         >
                           {caseItem.processNumber}
@@ -562,7 +562,7 @@ const Cases: React.FC = () => {
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={() => handleSync(caseItem.id)}
-                            className="text-blue-600 hover:text-blue-800 transition-colors"
+                            className="text-green-600 hover:text-green-800 transition-colors"
                             title="Sincronizar com DataJud"
                           >
                             <RefreshCw size={16} />
@@ -641,7 +641,7 @@ const Cases: React.FC = () => {
                     setFormData({ ...formData, clientId: '' });
                   }}
                   onFocus={() => setShowClientSuggestions(true)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 {showClientSuggestions && filteredClients.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -760,10 +760,10 @@ const Cases: React.FC = () => {
               </div>
 
               {selectedCase && selectedCase.ultimoAndamento && (
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                  <label className="block text-sm font-medium text-blue-900">Último Andamento (via API)</label>
-                  <p className="mt-1 text-sm text-blue-700">{selectedCase.ultimoAndamento}</p>
-                  <p className="mt-1 text-xs text-blue-600">Atualizado automaticamente ao sincronizar com DataJud</p>
+                <div className="bg-green-50 border border-green-200 rounded-md p-3">
+                  <label className="block text-sm font-medium text-green-900">Último Andamento (via API)</label>
+                  <p className="mt-1 text-sm text-green-700">{selectedCase.ultimoAndamento}</p>
+                  <p className="mt-1 text-xs text-green-600">Atualizado automaticamente ao sincronizar com DataJud</p>
                 </div>
               )}
 
@@ -774,7 +774,7 @@ const Cases: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowAddPartForm(!showAddPartForm)}
-                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    className="flex items-center space-x-1 text-green-600 hover:text-green-800 text-sm font-medium"
                   >
                     <Plus size={16} />
                     <span>Adicionar Parte</span>
@@ -789,7 +789,7 @@ const Cases: React.FC = () => {
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                              part.type === 'AUTOR' ? 'bg-blue-100 text-blue-700' :
+                              part.type === 'AUTOR' ? 'bg-green-100 text-green-700' :
                               part.type === 'REU' ? 'bg-red-100 text-red-700' :
                               'bg-green-100 text-green-700'
                             }`}>
@@ -823,7 +823,7 @@ const Cases: React.FC = () => {
                       <select
                         value={partFormData.type}
                         onChange={(e) => setPartFormData({ ...partFormData, type: e.target.value as any })}
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
                         <option value="AUTOR">Autor</option>
                         <option value="REU">Réu</option>
@@ -838,7 +838,7 @@ const Cases: React.FC = () => {
                           type="text"
                           value={partFormData.name}
                           onChange={(e) => setPartFormData({ ...partFormData, name: e.target.value })}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                       </div>
                       <div>
@@ -847,7 +847,7 @@ const Cases: React.FC = () => {
                           type="text"
                           value={partFormData.cpfCnpj}
                           onChange={(e) => setPartFormData({ ...partFormData, cpfCnpj: e.target.value })}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                       </div>
                     </div>
@@ -859,7 +859,7 @@ const Cases: React.FC = () => {
                           type="text"
                           value={partFormData.phone}
                           onChange={(e) => setPartFormData({ ...partFormData, phone: e.target.value })}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                       </div>
                       <div>
@@ -868,7 +868,7 @@ const Cases: React.FC = () => {
                           type="text"
                           value={partFormData.address}
                           onChange={(e) => setPartFormData({ ...partFormData, address: e.target.value })}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                       </div>
                     </div>
@@ -883,7 +883,7 @@ const Cases: React.FC = () => {
                               type="email"
                               value={partFormData.email}
                               onChange={(e) => setPartFormData({ ...partFormData, email: e.target.value })}
-                              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                           </div>
                           <div>
@@ -892,7 +892,7 @@ const Cases: React.FC = () => {
                               type="text"
                               value={partFormData.civilStatus}
                               onChange={(e) => setPartFormData({ ...partFormData, civilStatus: e.target.value })}
-                              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                           </div>
                         </div>
@@ -903,7 +903,7 @@ const Cases: React.FC = () => {
                               type="text"
                               value={partFormData.profession}
                               onChange={(e) => setPartFormData({ ...partFormData, profession: e.target.value })}
-                              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                           </div>
                           <div>
@@ -912,7 +912,7 @@ const Cases: React.FC = () => {
                               type="text"
                               value={partFormData.rg}
                               onChange={(e) => setPartFormData({ ...partFormData, rg: e.target.value })}
-                              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                           </div>
                         </div>
@@ -943,7 +943,7 @@ const Cases: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleAddPart}
-                        className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
                       >
                         Adicionar
                       </button>
@@ -967,7 +967,7 @@ const Cases: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                 >
                   {editMode ? 'Atualizar' : 'Salvar'}
                 </button>
@@ -1067,7 +1067,7 @@ const Cases: React.FC = () => {
                       <div>
                         <button
                           onClick={() => handleSync(selectedCase.id)}
-                          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                          className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                         >
                           <RefreshCw size={16} />
                           <span>Sincronizar Agora</span>
@@ -1122,7 +1122,7 @@ const Cases: React.FC = () => {
                               };
 
                               const typeBadgeColors = {
-                                AUTOR: 'bg-blue-100 text-blue-800',
+                                AUTOR: 'bg-green-100 text-green-800',
                                 REU: 'bg-red-100 text-red-800',
                                 REPRESENTANTE_LEGAL: 'bg-green-100 text-green-800',
                               };
@@ -1149,7 +1149,7 @@ const Cases: React.FC = () => {
                                   <td className="px-4 py-3 text-sm">
                                     <button
                                       onClick={() => handleEditPart(part)}
-                                      className="text-blue-600 hover:text-blue-800 font-medium"
+                                      className="text-green-600 hover:text-green-800 font-medium"
                                     >
                                       Editar
                                     </button>
@@ -1194,7 +1194,7 @@ const Cases: React.FC = () => {
                           {selectedCase.movements.map((movement, index) => (
                             <div key={movement.id} className="relative pl-12">
                               {/* Ponto na timeline */}
-                              <div className="absolute left-2 top-1 w-4 h-4 bg-blue-600 rounded-full border-4 border-white"></div>
+                              <div className="absolute left-2 top-1 w-4 h-4 bg-green-600 rounded-full border-4 border-white"></div>
 
                               {/* Conteúdo da movimentação */}
                               <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
@@ -1219,7 +1219,7 @@ const Cases: React.FC = () => {
                                 )}
 
                                 {index === 0 && (
-                                  <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                                  <span className="inline-block mt-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
                                     Mais recente
                                   </span>
                                 )}
@@ -1240,7 +1240,7 @@ const Cases: React.FC = () => {
                         setShowDetailsModal(false);
                         handleEdit(selectedCase as Case);
                       }}
-                      className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                      className="flex items-center space-x-2 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                     >
                       <Edit size={16} />
                       <span>Editar Processo</span>
@@ -1292,7 +1292,7 @@ const Cases: React.FC = () => {
                 <select
                   value={editingPart.type}
                   onChange={(e) => setEditingPart({ ...editingPart, type: e.target.value as 'AUTOR' | 'REU' | 'REPRESENTANTE_LEGAL' })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="AUTOR">Autor</option>
                   <option value="REU">Réu</option>
@@ -1309,7 +1309,7 @@ const Cases: React.FC = () => {
                   type="text"
                   value={editingPart.name}
                   onChange={(e) => setEditingPart({ ...editingPart, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
@@ -1323,7 +1323,7 @@ const Cases: React.FC = () => {
                   type="text"
                   value={editingPart.cpfCnpj || ''}
                   onChange={(e) => setEditingPart({ ...editingPart, cpfCnpj: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
@@ -1336,7 +1336,7 @@ const Cases: React.FC = () => {
                   type="text"
                   value={editingPart.rg || ''}
                   onChange={(e) => setEditingPart({ ...editingPart, rg: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
@@ -1349,7 +1349,7 @@ const Cases: React.FC = () => {
                   type="date"
                   value={editingPart.birthDate ? editingPart.birthDate.split('T')[0] : ''}
                   onChange={(e) => setEditingPart({ ...editingPart, birthDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
@@ -1362,7 +1362,7 @@ const Cases: React.FC = () => {
                   type="text"
                   value={editingPart.phone || ''}
                   onChange={(e) => setEditingPart({ ...editingPart, phone: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
@@ -1377,7 +1377,7 @@ const Cases: React.FC = () => {
                       type="email"
                       value={editingPart.email || ''}
                       onChange={(e) => setEditingPart({ ...editingPart, email: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
 
@@ -1389,7 +1389,7 @@ const Cases: React.FC = () => {
                       type="text"
                       value={editingPart.civilStatus || ''}
                       onChange={(e) => setEditingPart({ ...editingPart, civilStatus: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
 
@@ -1401,7 +1401,7 @@ const Cases: React.FC = () => {
                       type="text"
                       value={editingPart.profession || ''}
                       onChange={(e) => setEditingPart({ ...editingPart, profession: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                 </>
@@ -1415,7 +1415,7 @@ const Cases: React.FC = () => {
                 <textarea
                   value={editingPart.address || ''}
                   onChange={(e) => setEditingPart({ ...editingPart, address: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   rows={2}
                 />
               </div>
@@ -1434,7 +1434,7 @@ const Cases: React.FC = () => {
               </button>
               <button
                 onClick={handleSaveEditedPart}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
               >
                 Salvar Alterações
               </button>
@@ -1459,8 +1459,8 @@ const Cases: React.FC = () => {
 
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-blue-600">{importResults.total}</p>
+                <div className="bg-green-50 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-green-600">{importResults.total}</p>
                   <p className="text-sm text-gray-600">Total de linhas</p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg text-center">
@@ -1491,7 +1491,7 @@ const Cases: React.FC = () => {
 
               <button
                 onClick={() => setShowImportModal(false)}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 Fechar
               </button>
@@ -1532,9 +1532,9 @@ const Cases: React.FC = () => {
                 </div>
 
                 {selectedCase.ultimoAndamento && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                    <h3 className="text-sm font-medium text-blue-900 mb-1">Último Andamento (DataJud)</h3>
-                    <p className="text-blue-700">{selectedCase.ultimoAndamento}</p>
+                  <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                    <h3 className="text-sm font-medium text-green-900 mb-1">Último Andamento (DataJud)</h3>
+                    <p className="text-green-700">{selectedCase.ultimoAndamento}</p>
                   </div>
                 )}
 
@@ -1558,7 +1558,7 @@ const Cases: React.FC = () => {
                       href={selectedCase.linkProcesso}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline break-all"
+                      className="text-green-600 hover:text-green-800 hover:underline break-all"
                     >
                       {selectedCase.linkProcesso}
                     </a>

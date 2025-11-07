@@ -13,13 +13,42 @@ AdvWell is a multitenant SaaS system for law firms with integration to DataJud C
 - Backend API: https://api.advwell.pro
 
 **Current Versions:**
-- Backend: v20-email-folders (deployed)
-- Frontend: v13-text-andamento (deployed)
+- Backend: v22-document-fix (deployed)
+- Frontend: v19-green-theme (deployed)
 - Database: PostgreSQL 16 with complete schema for multitenant law firm management
 
 **Note**: Check `docker-compose.yml` for deployed versions. Latest development may be ahead of deployed versions.
 
-**Latest Updates (04/11/2025 22:37 UTC):**
+**Latest Updates (07/11/2025 03:15 UTC):**
+- ✅ **Updates Feature - Complete Implementation** - New "Atualizações" tab for process notifications
+  - **Problem Solved:** Users needed to see which processes were updated via DataJud sync
+  - **Implementation:** New database field `lastAcknowledgedAt` on Case table to track when user last viewed updates
+  - **Frontend:** Complete Updates page with process list, "Marcar como Ciente" functionality
+  - **Layout Fix:** Added Layout component wrapper to show sidebar/header (v17-updates-layout)
+  - **Backend:** v21-updates, Frontend: v17-updates-layout
+  - **Migration:** `add_last_acknowledged_at.sql` adds timestamp field to cases
+  - **Testing:** ✅ Feature deployed and tested in production
+- ✅ **Green Theme Application** - Complete color palette change from blue to green
+  - **Implementation:** Used sed to replace all blue-* Tailwind classes with green-*
+  - **Coverage:** 161 replacements across all .tsx files
+  - **Verification:** 0 blue colors remaining after replacement
+  - **Version:** Frontend v19-green-theme
+- ✅ **Permission System Enhancement** - Added new resources to permission management
+  - **New Permissions:** "Atualizações" (updates) and "Documentos" (documents)
+  - **Implementation:** Updated AVAILABLE_RESOURCES array in Users.tsx
+  - **Version:** Frontend v18-permissions
+  - **Impact:** Admins can now grant granular access to Updates and Documents features
+- ✅ **Document Upload Authorization Fix** - Fixed upload failing for SUPER_ADMIN users
+  - **Problem:** Document upload returned "Admin da empresa não encontrado" error
+  - **Root Cause:** Admin lookup only searched for role 'ADMIN', excluding SUPER_ADMIN
+  - **Fix:** Changed `role: 'ADMIN'` to `role: { in: ['ADMIN', 'SUPER_ADMIN'] }` in document.controller.ts:447
+  - **Version:** Backend v22-document-fix
+  - **Impact:** All user roles (USER, ADMIN, SUPER_ADMIN) can now upload documents
+  - **Testing:** ✅ Production tested with SUPER_ADMIN user
+- ✅ **Complete Backup** - Full system backup at `/root/advtom/backups/20251107_031512_v22_green_theme/` (1.0GB)
+- ✅ **DockerHub Updated** - Images pushed: `tomautomations/advwell-backend:v22-document-fix`, `tomautomations/advwell-frontend:v19-green-theme`
+
+**Previous Updates (04/11/2025 22:37 UTC):**
 - ✅ **S3 Email-Based Folder Structure** - MAJOR IMPROVEMENT for document organization
   - **Problem Fixed:** Files were organized by company UUID, hard to identify in S3 console
   - **Before:** `company-09fb2517-f437-4abb-870f-6cd294e3c93b/documents/file.pdf`

@@ -275,7 +275,7 @@ const Clients: React.FC = () => {
             </button>
             <button
               onClick={handleNewClient}
-              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-blue-600 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-blue-700 transition-colors text-xs sm:text-base"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-green-600 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-green-700 transition-colors text-xs sm:text-base"
             >
               <Plus size={16} className="sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Novo Cliente</span>
@@ -292,7 +292,7 @@ const Clients: React.FC = () => {
               placeholder="Buscar por nome, CPF ou email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -339,7 +339,7 @@ const Clients: React.FC = () => {
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={() => handleViewDetails(client)}
-                            className="text-blue-600 hover:text-blue-800 transition-colors"
+                            className="text-green-600 hover:text-green-800 transition-colors"
                             title="Ver detalhes"
                           >
                             <Eye size={18} />
@@ -405,7 +405,7 @@ const Clients: React.FC = () => {
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
@@ -416,7 +416,7 @@ const Clients: React.FC = () => {
                         value={formData.cpf}
                         onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
                         placeholder="000.000.000-00"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
@@ -426,7 +426,7 @@ const Clients: React.FC = () => {
                         type="text"
                         value={formData.rg}
                         onChange={(e) => setFormData({ ...formData, rg: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
@@ -438,7 +438,7 @@ const Clients: React.FC = () => {
                         type="date"
                         value={formData.birthDate}
                         onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
@@ -449,7 +449,7 @@ const Clients: React.FC = () => {
                       <select
                         value={formData.maritalStatus}
                         onChange={(e) => setFormData({ ...formData, maritalStatus: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
                         <option value="">Selecione...</option>
                         <option value="Solteiro(a)">Solteiro(a)</option>
@@ -468,7 +468,7 @@ const Clients: React.FC = () => {
                         type="text"
                         value={formData.profession}
                         onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
                   </div>
@@ -484,7 +484,7 @@ const Clients: React.FC = () => {
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
@@ -497,7 +497,7 @@ const Clients: React.FC = () => {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="(00) 00000-0000"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
                   </div>
@@ -516,7 +516,7 @@ const Clients: React.FC = () => {
                         value={formData.address}
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                         placeholder="Rua, número, complemento"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
@@ -526,7 +526,7 @@ const Clients: React.FC = () => {
                         type="text"
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
@@ -535,7 +535,7 @@ const Clients: React.FC = () => {
                       <select
                         value={formData.state}
                         onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
                         <option value="">Selecione...</option>
                         <option value="AC">AC</option>
@@ -575,7 +575,7 @@ const Clients: React.FC = () => {
                         value={formData.zipCode}
                         onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
                         placeholder="00000-000"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
                   </div>
@@ -589,7 +589,7 @@ const Clients: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     rows={4}
                     placeholder="Informações adicionais sobre o cliente..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
               </div>
@@ -609,7 +609,7 @@ const Clients: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                 >
                   {editMode ? 'Atualizar' : 'Salvar'}
                 </button>
@@ -738,7 +738,7 @@ const Clients: React.FC = () => {
                   setShowDetailsModal(false);
                   handleEdit(selectedClient);
                 }}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
               >
                 Editar Cliente
               </button>
@@ -772,8 +772,8 @@ const Clients: React.FC = () => {
 
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-blue-600">{importResults.total}</p>
+                <div className="bg-green-50 p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-green-600">{importResults.total}</p>
                   <p className="text-sm text-gray-600">Total de linhas</p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg text-center">
@@ -804,7 +804,7 @@ const Clients: React.FC = () => {
 
               <button
                 onClick={() => setShowImportModal(false)}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 Fechar
               </button>

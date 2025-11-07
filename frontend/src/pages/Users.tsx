@@ -25,7 +25,9 @@ interface User {
 const AVAILABLE_RESOURCES = [
   { value: 'clients', label: 'Clientes' },
   { value: 'cases', label: 'Processos' },
+  { value: 'updates', label: 'Atualizações' },
   { value: 'financial', label: 'Financeiro' },
+  { value: 'documents', label: 'Documentos' },
   { value: 'users', label: 'Usuários' },
   { value: 'settings', label: 'Configurações' },
 ];
@@ -183,7 +185,7 @@ const Users: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Usuários</h1>
           <button
             onClick={handleNewUser}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
           >
             <Plus size={20} />
             <span>Novo Usuário</span>
@@ -198,7 +200,7 @@ const Users: React.FC = () => {
               placeholder="Buscar usuários..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -266,7 +268,7 @@ const Users: React.FC = () => {
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={() => handleEdit(user)}
-                            className="text-blue-600 hover:text-blue-800 transition-colors"
+                            className="text-green-600 hover:text-green-800 transition-colors"
                             title="Editar"
                             disabled={user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'}
                           >
@@ -362,7 +364,7 @@ const Users: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleAddPermission}
-                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    className="flex items-center space-x-1 text-green-600 hover:text-green-800 text-sm font-medium"
                   >
                     <Plus size={16} />
                     <span>Adicionar Permissão</span>
@@ -399,7 +401,7 @@ const Users: React.FC = () => {
                               id={`view-${index}`}
                               checked={permission.canView}
                               onChange={(e) => handlePermissionChange(index, 'canView', e.target.checked)}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                             />
                             <label htmlFor={`view-${index}`} className="text-sm text-gray-700 flex items-center">
                               <Eye size={14} className="mr-1" />
@@ -413,7 +415,7 @@ const Users: React.FC = () => {
                               id={`edit-${index}`}
                               checked={permission.canEdit}
                               onChange={(e) => handlePermissionChange(index, 'canEdit', e.target.checked)}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                             />
                             <label htmlFor={`edit-${index}`} className="text-sm text-gray-700 flex items-center">
                               <EditIcon size={14} className="mr-1" />
@@ -427,7 +429,7 @@ const Users: React.FC = () => {
                               id={`delete-${index}`}
                               checked={permission.canDelete}
                               onChange={(e) => handlePermissionChange(index, 'canDelete', e.target.checked)}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                             />
                             <label htmlFor={`delete-${index}`} className="text-sm text-gray-700 flex items-center">
                               <Trash size={14} className="mr-1" />
@@ -465,7 +467,7 @@ const Users: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                 >
                   {editMode ? 'Atualizar' : 'Criar Usuário'}
                 </button>

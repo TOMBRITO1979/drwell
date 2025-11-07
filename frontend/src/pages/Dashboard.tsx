@@ -57,7 +57,7 @@ const Dashboard: React.FC = () => {
             type: 'client',
             description: `Cliente cadastrado: ${client.name}`,
             date: client.createdAt,
-            icon: <UserPlus className="text-blue-600" size={20} />,
+            icon: <UserPlus className="text-green-600" size={20} />,
           });
         });
       }
@@ -141,8 +141,8 @@ const Dashboard: React.FC = () => {
                 <p className="text-sm text-gray-600">Total de Clientes</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">{stats.clients}</p>
               </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Users className="text-blue-600" size={32} />
+              <div className="bg-green-100 p-3 rounded-lg">
+                <Users className="text-green-600" size={32} />
               </div>
             </div>
           </div>

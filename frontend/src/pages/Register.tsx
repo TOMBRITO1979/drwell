@@ -62,7 +62,7 @@ const Register: React.FC = () => {
   // Tela de sucesso após registro
   if (registered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4 py-12">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-purple-600 px-4 py-12">
         <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
@@ -74,9 +74,9 @@ const Register: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Enviamos um email de verificação para:
             </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <Mail className="w-5 h-5 text-blue-600 inline mr-2" />
-              <span className="font-semibold text-blue-900">{userEmail}</span>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <Mail className="w-5 h-5 text-green-600 inline mr-2" />
+              <span className="font-semibold text-green-900">{userEmail}</span>
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-left">
               <p className="text-sm text-yellow-800 mb-2">
@@ -91,13 +91,13 @@ const Register: React.FC = () => {
             <div className="space-y-3">
               <button
                 onClick={() => navigate('/login')}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
               >
                 Ir para Login
               </button>
               <button
                 onClick={() => navigate('/resend-verification')}
-                className="w-full px-4 py-2 text-blue-600 hover:text-blue-700 transition-colors text-sm"
+                className="w-full px-4 py-2 text-green-600 hover:text-green-700 transition-colors text-sm"
               >
                 Não recebeu o email? Reenviar
               </button>
@@ -112,7 +112,7 @@ const Register: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-purple-600 px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Cadastro</h1>
@@ -131,7 +131,7 @@ const Register: React.FC = () => {
               required
               value={formData.name}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -146,7 +146,7 @@ const Register: React.FC = () => {
               required
               value={formData.email}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -161,7 +161,7 @@ const Register: React.FC = () => {
               required
               value={formData.companyName}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -175,7 +175,7 @@ const Register: React.FC = () => {
               type="text"
               value={formData.cnpj}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -190,7 +190,7 @@ const Register: React.FC = () => {
               required
               value={formData.password}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -205,14 +205,14 @@ const Register: React.FC = () => {
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
           >
             {loading ? 'Cadastrando...' : 'Cadastrar'}
           </button>
@@ -221,7 +221,7 @@ const Register: React.FC = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Já tem uma conta?{' '}
-            <Link to="/login" className="text-blue-600 hover:text-blue-500 font-medium">
+            <Link to="/login" className="text-green-600 hover:text-green-500 font-medium">
               Faça login
             </Link>
           </p>

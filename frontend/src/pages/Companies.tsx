@@ -193,7 +193,7 @@ const Companies: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Empresas</h1>
           <button
             onClick={handleNewCompany}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
           >
             <Plus size={20} />
             <span>Nova Empresa</span>
@@ -208,7 +208,7 @@ const Companies: React.FC = () => {
               placeholder="Buscar empresas..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -292,7 +292,7 @@ const Companies: React.FC = () => {
                           </button>
                           <button
                             onClick={() => handleEdit(company)}
-                            className="text-blue-600 hover:text-blue-800 transition-colors"
+                            className="text-green-600 hover:text-green-800 transition-colors"
                             title="Editar"
                           >
                             <Edit size={18} />
@@ -509,7 +509,7 @@ const Companies: React.FC = () => {
                       id="active"
                       checked={editFormData.active}
                       onChange={(e) => setEditFormData({ ...editFormData, active: e.target.checked })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                     />
                     <label htmlFor="active" className="text-sm font-medium text-gray-700">
                       Empresa Ativa
@@ -533,7 +533,7 @@ const Companies: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                 >
                   {editMode ? 'Atualizar' : 'Criar Empresa'}
                 </button>

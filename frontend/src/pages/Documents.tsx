@@ -304,7 +304,7 @@ const Documents: React.FC = () => {
                 setSelectedClient(null);
                 setSelectedCase(null);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="client">Cliente</option>
               <option value="case">Processo</option>
@@ -326,7 +326,7 @@ const Documents: React.FC = () => {
                   ? 'Digite o nome ou CPF'
                   : 'Digite o número do processo'
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
 
             {/* Autocomplete Dropdown */}
@@ -372,7 +372,7 @@ const Documents: React.FC = () => {
             <button
               onClick={handleSearch}
               disabled={loading || (!selectedClient && !selectedCase)}
-              className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap"
+              className="flex-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap"
             >
               {loading ? 'Buscando...' : 'Visualizar Documentos'}
             </button>
@@ -388,9 +388,9 @@ const Documents: React.FC = () => {
 
         {/* Selected Entity Display */}
         {(selectedClient || selectedCase) && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <span className="font-medium text-blue-900">Selecionado: </span>
-            <span className="text-blue-700">
+          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+            <span className="font-medium text-green-900">Selecionado: </span>
+            <span className="text-green-700">
               {selectedClient
                 ? `${selectedClient.name} ${selectedClient.cpf ? `(${selectedClient.cpf})` : ''}`
                 : `Processo ${selectedCase?.processNumber}`}
@@ -434,7 +434,7 @@ const Documents: React.FC = () => {
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
                             doc.storageType === 'upload'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-green-100 text-green-800'
                               : 'bg-green-100 text-green-800'
                           }`}
                         >
@@ -474,7 +474,7 @@ const Documents: React.FC = () => {
                       <div className="flex gap-2 mt-4">
                         <button
                           onClick={() => handleOpenDocument(doc)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
                         >
                           Abrir
                         </button>
@@ -514,11 +514,11 @@ const Documents: React.FC = () => {
             <form onSubmit={handleSaveDocument} className="p-6 overflow-y-auto flex-1">
               <div className="space-y-4">
                 {/* Selected Entity */}
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                  <span className="font-medium text-blue-900">
+                <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                  <span className="font-medium text-green-900">
                     {selectedClient ? 'Cliente: ' : 'Processo: '}
                   </span>
-                  <span className="text-blue-700">
+                  <span className="text-green-700">
                     {selectedClient
                       ? selectedClient.name
                       : selectedCase?.processNumber}
@@ -534,7 +534,7 @@ const Documents: React.FC = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
@@ -548,7 +548,7 @@ const Documents: React.FC = () => {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -598,7 +598,7 @@ const Documents: React.FC = () => {
                         onChange={(e) =>
                           setFormData({ ...formData, externalUrl: e.target.value })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                         placeholder="https://..."
                         required
                       />
@@ -616,7 +616,7 @@ const Documents: React.FC = () => {
                             externalType: e.target.value as any,
                           })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
                         <option value="google_drive">Google Drive</option>
                         <option value="google_docs">Google Docs</option>
@@ -645,7 +645,7 @@ const Documents: React.FC = () => {
                           }
                         }
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                       accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.gif,.webp,.zip,.rar"
                     />
                     {selectedFile && (
@@ -676,7 +676,7 @@ const Documents: React.FC = () => {
               <button
                 onClick={handleSaveDocument}
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {loading ? 'Enviando...' : 'Salvar Documento'}
               </button>

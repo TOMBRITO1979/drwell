@@ -14,8 +14,10 @@ router.post('/', caseController.create);
 router.get('/', caseController.list);
 router.get('/export/csv', caseController.exportCSV);
 router.post('/import/csv', upload.single('file'), caseController.importCSV);
+router.get('/updates', caseController.getPendingUpdates); // Lista atualizações pendentes
 router.get('/:id', caseController.get);
 router.put('/:id', caseController.update);
 router.post('/:id/sync', caseController.syncMovements);
+router.post('/:id/acknowledge', caseController.acknowledgeUpdate); // Marca como ciente
 
 export default router;

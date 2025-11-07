@@ -15,6 +15,7 @@ import {
   UserCog,
   ChevronLeft,
   ChevronRight,
+  Bell,
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -52,6 +53,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/dashboard', label: 'Dashboard', icon: Home },
     { path: '/clients', label: 'Clientes', icon: Users },
     { path: '/cases', label: 'Processos', icon: FileText },
+    { path: '/updates', label: 'Atualizações', icon: Bell },
     { path: '/financial', label: 'Financeiro', icon: DollarSign },
     { path: '/documents', label: 'Documentos', icon: FolderOpen },
   ];
@@ -140,7 +142,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     sidebarCollapsed ? 'justify-center px-4' : 'space-x-3 px-6'
                   } py-3 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600'
+                      ? 'bg-green-50 text-green-600 border-r-4 border-green-600'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                   onClick={() => setSidebarOpen(false)}

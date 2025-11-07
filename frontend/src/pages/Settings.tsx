@@ -118,7 +118,7 @@ const Settings: React.FC = () => {
                     value={settings.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -132,7 +132,7 @@ const Settings: React.FC = () => {
                     value={settings.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -146,7 +146,7 @@ const Settings: React.FC = () => {
                     value={settings.phone || ''}
                     onChange={handleChange}
                     placeholder="(00) 0000-0000"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -160,7 +160,7 @@ const Settings: React.FC = () => {
                     value={settings.logo || ''}
                     onChange={handleChange}
                     placeholder="https://exemplo.com/logo.png"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
               </div>
@@ -183,7 +183,7 @@ const Settings: React.FC = () => {
                     value={settings.address || ''}
                     onChange={handleChange}
                     placeholder="Rua, Avenida, número"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -197,7 +197,7 @@ const Settings: React.FC = () => {
                     value={settings.city || ''}
                     onChange={handleChange}
                     placeholder="Ex: São Paulo"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
@@ -212,7 +212,7 @@ const Settings: React.FC = () => {
                     onChange={handleChange}
                     placeholder="Ex: SP"
                     maxLength={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 uppercase"
                     style={{ textTransform: 'uppercase' }}
                   />
                 </div>
@@ -227,7 +227,7 @@ const Settings: React.FC = () => {
                     value={settings.zipCode || ''}
                     onChange={handleChange}
                     placeholder="00000-000"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
               </div>
@@ -238,7 +238,7 @@ const Settings: React.FC = () => {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 <Save className="h-4 w-4" />
                 {saving ? 'Salvando...' : 'Salvar Configurações'}
@@ -247,9 +247,9 @@ const Settings: React.FC = () => {
           </form>
 
           {/* Informações Adicionais */}
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-900 mb-2">ℹ️ Informação</h3>
-            <p className="text-sm text-blue-800">
+          <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <h3 className="font-semibold text-green-900 mb-2">ℹ️ Informação</h3>
+            <p className="text-sm text-green-800">
               Os dados configurados aqui serão automaticamente incluídos no cabeçalho dos relatórios
               financeiros em PDF, dando um aspecto mais profissional aos seus documentos.
             </p>

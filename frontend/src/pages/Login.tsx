@@ -33,7 +33,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-purple-600 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">AdvWell</h1>
@@ -51,7 +51,7 @@ const Login: React.FC = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
@@ -65,14 +65,14 @@ const Login: React.FC = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
             />
           </div>
 
           <div className="flex items-center justify-between">
             <Link
               to="/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-500"
+              className="text-sm text-green-600 hover:text-green-500"
             >
               Esqueceu a senha?
             </Link>
@@ -81,7 +81,7 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
@@ -90,13 +90,13 @@ const Login: React.FC = () => {
         <div className="mt-6 text-center space-y-2">
           <p className="text-sm text-gray-600">
             Não tem uma conta?{' '}
-            <Link to="/register" className="text-blue-600 hover:text-blue-500 font-medium">
+            <Link to="/register" className="text-green-600 hover:text-green-500 font-medium">
               Cadastre-se
             </Link>
           </p>
           <p className="text-xs text-gray-500">
             Não recebeu o email de verificação?{' '}
-            <Link to="/resend-verification" className="text-blue-600 hover:text-blue-500 font-medium">
+            <Link to="/resend-verification" className="text-green-600 hover:text-green-500 font-medium">
               Reenviar
             </Link>
           </p>

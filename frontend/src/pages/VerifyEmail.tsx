@@ -44,13 +44,13 @@ const VerifyEmail: React.FC = () => {
   }, [searchParams, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
-              <Mail className="w-8 h-8 text-blue-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+              <Mail className="w-8 h-8 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Verificação de Email
@@ -66,7 +66,7 @@ const VerifyEmail: React.FC = () => {
           <div className="text-center mb-6">
             {status === 'loading' && (
               <div className="flex flex-col items-center">
-                <Loader className="w-16 h-16 text-blue-600 animate-spin mb-4" />
+                <Loader className="w-16 h-16 text-green-600 animate-spin mb-4" />
                 <p className="text-gray-600">
                   Aguarde enquanto verificamos seu email...
                 </p>
@@ -90,7 +90,7 @@ const VerifyEmail: React.FC = () => {
                 <div className="space-y-3 w-full">
                   <button
                     onClick={() => navigate('/resend-verification')}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
                     Solicitar Novo Link
                   </button>
@@ -109,7 +109,7 @@ const VerifyEmail: React.FC = () => {
           {status === 'success' && (
             <div className="mt-8 pt-6 border-t border-gray-200">
               <p className="text-center text-sm text-gray-600">
-                Bem-vindo ao <span className="font-semibold text-blue-600">AdvWell</span>
+                Bem-vindo ao <span className="font-semibold text-green-600">AdvWell</span>
               </p>
             </div>
           )}
